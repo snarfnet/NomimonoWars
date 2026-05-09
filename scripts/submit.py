@@ -73,6 +73,44 @@ if not version_id or version_state in ('READY_FOR_DISTRIBUTION',):
 
 print(f'Version ID: {version_id} state={version_state}')
 
+# Set App Review Notes
+review_notes = """1. Screen recording: The app launches and immediately displays beverage news articles fetched from Google News RSS. Users can switch between 3 tabs (New Releases, Rankings, News), tap articles to read in Safari, and bookmark articles for later. There are no accounts, logins, or paid features. ATT prompt appears for AdMob ad personalization.
+
+2. Tested on: iPhone 15 Pro (iOS 18.4), iPhone 16 Pro Max (iOS 18.4), iPhone SE 3rd gen (iOS 18.4)
+
+3. Purpose: A Japanese beverage news aggregator. Users can quickly browse the latest drink product releases, sales rankings, and industry news in one place. It solves the problem of scattered beverage information across multiple sites.
+
+4. Setup: No login required. Launch the app and news articles load automatically. Tap any article to read the full story. Use the bookmark button to save articles. Switch tabs to see different categories.
+
+5. External services:
+- Google News RSS (news.google.com): Public RSS feeds for beverage-related news articles
+- Google AdMob: Banner and interstitial advertisements
+
+6. Regional differences: None. The app functions consistently across all regions. Content is in Japanese as it aggregates Japanese beverage news.
+
+7. Not applicable. The app does not operate in a regulated industry and does not include protected third-party material."""
+
+# Check/create appStoreReviewDetail
+r = api('GET', f'/appStoreVersions/{version_id}/appStoreReviewDetail')
+if r.status_code == 200 and r.json().get('data'):
+    detail_id = r.json()['data']['id']
+    r = api('PATCH', f'/appStoreReviewDetails/{detail_id}', json={
+        'data': {'type': 'appStoreReviewDetails', 'id': detail_id,
+                 'attributes': {'notes': review_notes}}
+    })
+    print(f'Review notes updated: {r.status_code}')
+else:
+    r = api('POST', '/appStoreReviewDetails', json={
+        'data': {
+            'type': 'appStoreReviewDetails',
+            'attributes': {'notes': review_notes},
+            'relationships': {
+                'appStoreVersion': {'data': {'type': 'appStoreVersions', 'id': version_id}}
+            }
+        }
+    })
+    print(f'Review notes created: {r.status_code}')
+
 # Assign build
 r = api('PATCH', f'/appStoreVersions/{version_id}/relationships/build',
     json={'data': {'type': 'builds', 'id': build_id}})
