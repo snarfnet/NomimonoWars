@@ -147,33 +147,35 @@ struct ContentView: View {
     }
 
     private var drinkTabBar: some View {
-        HStack(spacing: 8) {
-            ForEach(DrinkTab.allCases, id: \.self) { tab in
-                Button {
-                    Task { await vm.switchTab(tab) }
-                } label: {
-                    VStack(spacing: 6) {
-                        Image(systemName: tab.icon)
-                            .font(.system(size: 16, weight: .black))
-                        Text(tab.rawValue)
-                            .font(.system(size: 12, weight: .heavy, design: .rounded))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.78)
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(DrinkTab.allCases, id: \.self) { tab in
+                    Button {
+                        Task { await vm.switchTab(tab) }
+                    } label: {
+                        VStack(spacing: 6) {
+                            Image(systemName: tab.icon)
+                                .font(.system(size: 16, weight: .black))
+                            Text(tab.rawValue)
+                                .font(.system(size: 12, weight: .heavy, design: .rounded))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.78)
+                        }
+                        .frame(minWidth: 90)
+                        .padding(.vertical, 11)
+                        .foregroundStyle(vm.currentTab == tab ? Palette.ink : Palette.sub)
+                        .background(vm.currentTab == tab ? Palette.lime : Palette.panel)
+                        .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                                .stroke(vm.currentTab == tab ? Palette.lime : Palette.line, lineWidth: 1)
+                        )
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 11)
-                    .foregroundStyle(vm.currentTab == tab ? Palette.ink : Palette.sub)
-                    .background(vm.currentTab == tab ? Palette.lime : Palette.panel)
-                    .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 15, style: .continuous)
-                            .stroke(vm.currentTab == tab ? Palette.lime : Palette.line, lineWidth: 1)
-                    )
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
+            .padding(.horizontal, 14)
         }
-        .padding(.horizontal, 14)
         .padding(.bottom, 10)
     }
 
