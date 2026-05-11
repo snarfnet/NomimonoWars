@@ -12,6 +12,7 @@ struct StatsView: View {
                 statsContent
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var statsHeader: some View {

@@ -13,6 +13,7 @@ struct DrinkLogView: View {
                 logList
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var logHeader: some View {

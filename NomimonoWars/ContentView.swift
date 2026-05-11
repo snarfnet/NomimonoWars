@@ -51,6 +51,7 @@ struct ContentView: View {
                         case .bookmarks: bookmarkView
                         }
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbarBackground(Palette.bg.opacity(0.92), for: .navigationBar)
