@@ -29,12 +29,14 @@ class InterstitialAdManager: NSObject, ObservableObject {
 
     private func showAd() {
         guard let interstitial,
-              let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let root = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController else {
+              let windowScene = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene }).first,
+              let rootVC = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController
+                ?? windowScene.windows.first?.rootViewController else {
             loadAd()
             return
         }
-        interstitial.present(fromRootViewController: root)
+        interstitial.present(fromRootViewController: rootVC)
         loadAd()
     }
 }

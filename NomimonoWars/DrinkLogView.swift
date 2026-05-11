@@ -5,15 +5,37 @@ struct DrinkLogView: View {
     @State private var showAddSheet = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            logHeader
-            if logManager.entries.isEmpty {
-                emptyLogState
-            } else {
-                logList
+        ZStack(alignment: .bottomTrailing) {
+            VStack(spacing: 0) {
+                logHeader
+                if logManager.entries.isEmpty {
+                    emptyLogState
+                } else {
+                    logList
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            if !logManager.entries.isEmpty {
+                Button {
+                    showAddSheet = true
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 22, weight: .black))
+                        .foregroundStyle(Palette.ink)
+                        .frame(width: 56, height: 56)
+                        .background(Palette.lime)
+                        .clipShape(Circle())
+                        .shadow(color: Palette.lime.opacity(0.4), radius: 12, y: 6)
+                }
+                .buttonStyle(.plain)
+                .padding(.trailing, 20)
+                .padding(.bottom, 20)
+                .sheet(isPresented: $showAddSheet) {
+                    AddDrinkView(logManager: logManager)
+                }
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var logHeader: some View {
@@ -248,7 +270,7 @@ struct AddDrinkView: View {
                 }
             }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents([.large])
     }
 
     private var nameField: some View {
