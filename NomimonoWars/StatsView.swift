@@ -156,16 +156,18 @@ struct StatsView: View {
 
     // MARK: - Top Drinks
 
+    private var topDrinksData: [(key: String, value: Int)] {
+        var counts: [String: Int] = [:]
+        for n in logManager.weekEntries().map(\.name) { counts[n, default: 0] += 1 }
+        return Array(counts.sorted { $0.value > $1.value }.prefix(5))
+    }
+
     private var topDrinks: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        let sorted = topDrinksData
+        return VStack(alignment: .leading, spacing: 12) {
             Text("よく飲むもの")
                 .font(.system(size: 14, weight: .black, design: .rounded))
                 .foregroundStyle(Palette.text)
-
-            let names = logManager.weekEntries().map(\.name)
-            var counts: [String: Int] = [:]
-            for n in names { counts[n, default: 0] += 1 }
-            let sorted = counts.sorted { $0.value > $1.value }.prefix(5)
 
             if sorted.isEmpty {
                 Text("データなし")
