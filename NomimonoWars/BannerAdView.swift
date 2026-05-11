@@ -12,11 +12,10 @@ struct BannerAdView: UIViewRepresentable {
 
     func updateUIView(_ uiView: GADBannerView, context: Context) {
         guard uiView.rootViewController == nil else { return }
-        DispatchQueue.main.async {
-            if let rootVC = uiView.window?.windowScene?.keyWindow?.rootViewController {
-                uiView.rootViewController = rootVC
-                uiView.load(GADRequest())
-            }
+        if let windowScene = uiView.window?.windowScene,
+           let rootVC = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController {
+            uiView.rootViewController = rootVC
+            uiView.load(GADRequest())
         }
     }
 }

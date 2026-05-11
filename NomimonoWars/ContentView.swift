@@ -7,10 +7,31 @@ struct ContentView: View {
     @StateObject private var vm = DrinkViewModel()
     @StateObject private var bookmarkManager = BookmarkManager()
     @StateObject private var interstitialManager = InterstitialAdManager()
+    @StateObject private var logManager = DrinkLogManager()
     @State private var selectedMainTab: MainTab = .drink
 
-    enum MainTab {
-        case drink, bookmarks
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
+    enum MainTab: CaseIterable {
+        case drink, log, stats, bookmarks
+
+        var title: String {
+            switch self {
+            case .drink: return "速報"
+            case .log: return "飲みログ"
+            case .stats: return "統計"
+            case .bookmarks: return "保存"
+            }
+        }
+
+        var icon: String {
+            switch self {
+            case .drink: return "drop.fill"
+            case .log: return "cup.and.saucer.fill"
+            case .stats: return "chart.bar.fill"
+            case .bookmarks: return "bookmark.fill"
+            }
+        }
     }
 
     var body: some View {
@@ -23,10 +44,11 @@ struct ContentView: View {
                         .allowsHitTesting(false)
 
                     Group {
-                        if selectedMainTab == .drink {
-                            drinkView
-                        } else {
-                            bookmarkView
+                        switch selectedMainTab {
+                        case .drink: drinkView
+                        case .log: DrinkLogView(logManager: logManager)
+                        case .stats: StatsView(logManager: logManager)
+                        case .bookmarks: bookmarkView
                         }
                     }
                 }
@@ -83,7 +105,7 @@ struct ContentView: View {
                         .tracking(1.4)
                         .foregroundStyle(Palette.lime)
                     Text(heroTitle)
-                        .font(.system(size: 32, weight: .black, design: .rounded))
+                        .font(.system(size: sizeClass == .regular ? 28 : 32, weight: .black, design: .rounded))
                         .foregroundStyle(Palette.text)
                         .lineLimit(2)
                         .minimumScaleFactor(0.72)
@@ -321,9 +343,10 @@ struct ContentView: View {
     // MARK: - Main Tab Bar
 
     private var mainTabBar: some View {
-        HStack(spacing: 8) {
-            mainTabButton(title: "速報", icon: "drop.fill", tab: .drink)
-            mainTabButton(title: "保存", icon: "bookmark.fill", tab: .bookmarks)
+        HStack(spacing: 6) {
+            ForEach(MainTab.allCases, id: \.self) { tab in
+                mainTabButton(tab: tab)
+            }
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 9)
@@ -337,17 +360,21 @@ struct ContentView: View {
         )
     }
 
-    private func mainTabButton(title: String, icon: String, tab: MainTab) -> some View {
+    private func mainTabButton(tab: MainTab) -> some View {
         Button {
             selectedMainTab = tab
         } label: {
-            Label(title, systemImage: icon)
-                .font(.system(size: 14, weight: .black, design: .rounded))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 11)
-                .foregroundStyle(selectedMainTab == tab ? Palette.ink : Palette.sub)
-                .background(selectedMainTab == tab ? Palette.lime : Palette.panel)
-                .clipShape(Capsule())
+            VStack(spacing: 4) {
+                Image(systemName: tab.icon)
+                    .font(.system(size: 16, weight: .bold))
+                Text(tab.title)
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+            .foregroundStyle(selectedMainTab == tab ? Palette.lime : Palette.sub)
         }
         .buttonStyle(.plain)
     }
