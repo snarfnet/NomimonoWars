@@ -30,7 +30,8 @@ struct DrinkLogView: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.trailing, 20)
-                .padding(.bottom, 20)
+                .padding(.bottom, 90)
+
             }
         }
         .sheet(isPresented: $showAddSheet) {
