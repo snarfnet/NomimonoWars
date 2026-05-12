@@ -31,10 +31,10 @@ struct DrinkLogView: View {
                 .buttonStyle(.plain)
                 .padding(.trailing, 20)
                 .padding(.bottom, 20)
-                .sheet(isPresented: $showAddSheet) {
-                    AddDrinkView(logManager: logManager)
-                }
             }
+        }
+        .sheet(isPresented: $showAddSheet) {
+            AddDrinkView(logManager: logManager)
         }
     }
 
@@ -73,9 +73,6 @@ struct DrinkLogView: View {
         .padding(.horizontal, 18)
         .padding(.top, 14)
         .padding(.bottom, 16)
-        .sheet(isPresented: $showAddSheet) {
-            AddDrinkView(logManager: logManager)
-        }
     }
 
     private var todayPill: some View {
