@@ -106,6 +106,7 @@ struct DrinkLogView: View {
                 }
             }
             .padding(.vertical, 10)
+            .padding(.bottom, 80)
         }
         .scrollIndicators(.hidden)
     }
