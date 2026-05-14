@@ -1,9 +1,10 @@
-import jwt, time, requests, sys
+import jwt, time, requests, sys, os
 
 KEY_ID = 'WDXGY9WX55'
 ISSUER = '2be0734f-943a-4d61-9dc9-5d9045c46fec'
 APP_ID = '6767826229'
 BUILD_NUMBER = sys.argv[1]
+APP_VERSION = os.environ.get('APP_VERSION', '1.0')
 
 p8 = open('/tmp/asc_key.p8').read()
 
@@ -34,8 +35,8 @@ for i in range(80):
     time.sleep(30)
 
 if not build_id:
-    print('WARNING: Build not found after 40 minutes. Check ASC manually.')
-    sys.exit(0)
+    print('ERROR: Build not found after 40 minutes. Check ASC manually.')
+    sys.exit(1)
 
 # Set export compliance
 r = api('PATCH', f'/builds/{build_id}',
@@ -45,12 +46,12 @@ print(f'Export compliance: {r.status_code}')
 # Find version
 version_id = None
 version_state = None
-r = api('GET', f'/apps/{APP_ID}/appStoreVersions?filter[platform]=IOS&limit=1')
+r = api('GET', f'/apps/{APP_ID}/appStoreVersions?filter[platform]=IOS&filter[versionString]={APP_VERSION}&limit=1')
 data = r.json()
 if data.get('data'):
     version_id = data['data'][0]['id']
     version_state = data['data'][0]['attributes']['appStoreState']
-    print(f'Found version: {version_id} state={version_state}')
+    print(f'Found version {APP_VERSION}: {version_id} state={version_state}')
 
 if version_state in ('WAITING_FOR_REVIEW', 'IN_REVIEW'):
     print(f'Already in review ({version_state}). Nothing to do.')
@@ -61,7 +62,7 @@ if not version_id or version_state in ('READY_FOR_DISTRIBUTION',):
     r = api('POST', '/appStoreVersions', json={
         'data': {
             'type': 'appStoreVersions',
-            'attributes': {'platform': 'IOS', 'versionString': '1.0'},
+            'attributes': {'platform': 'IOS', 'versionString': APP_VERSION},
             'relationships': {'app': {'data': {'type': 'apps', 'id': APP_ID}}}
         }
     })
@@ -74,7 +75,9 @@ if not version_id or version_state in ('READY_FOR_DISTRIBUTION',):
 print(f'Version ID: {version_id} state={version_state}')
 
 # Set App Review Notes
-review_notes = """1. Screen recording: The app launches and immediately displays beverage news articles fetched from Google News RSS. Users can switch between 3 tabs (New Releases, Rankings, News), tap articles to read in Safari, and bookmark articles for later. There are no accounts, logins, or paid features. ATT prompt appears for AdMob ad personalization.
+review_notes = """This build fixes the crowded top UI reported on iPhone 17 Pro Max and iPad Air 11-inch. The app now uses an in-screen header and shorter section headers so content and controls remain visible.
+
+1. Screen recording: The app launches and immediately displays beverage news articles fetched from Google News RSS. Users can switch between 3 tabs (New Releases, Rankings, News), tap articles to read in Safari, and bookmark articles for later. There are no accounts, logins, or paid features. ATT prompt appears for AdMob ad personalization.
 
 2. Tested on: iPhone 15 Pro (iOS 18.4), iPhone 16 Pro Max (iOS 18.4), iPhone SE 3rd gen (iOS 18.4)
 
@@ -133,7 +136,7 @@ for state_filter in ['UNRESOLVED_ISSUES', 'READY_FOR_REVIEW']:
 if canceled_any:
     print('Waiting 30s for cancellations to propagate...')
     time.sleep(30)
-    r = api('GET', f'/apps/{APP_ID}/appStoreVersions?filter[platform]=IOS&limit=1')
+    r = api('GET', f'/apps/{APP_ID}/appStoreVersions?filter[platform]=IOS&filter[versionString]={APP_VERSION}&limit=1')
     data = r.json()
     if data.get('data'):
         version_id = data['data'][0]['id']
@@ -162,7 +165,7 @@ for attempt in range(5):
 
 if not submission_id:
     print('Could not create reviewSubmission after 5 attempts.')
-    sys.exit(0)
+    sys.exit(1)
 
 # Add item
 item_added = False
@@ -185,7 +188,7 @@ for attempt in range(5):
 
 if not item_added:
     print(f'Failed to add item: {r.text[:300]}')
-    sys.exit(0)
+    sys.exit(1)
 
 r = api('PATCH', f'/reviewSubmissions/{submission_id}', json={
     'data': {
@@ -199,3 +202,4 @@ if r.status_code == 200:
     print(f'Submitted! State: {state}')
 else:
     print(f'Submit failed: {r.status_code} {r.text[:300]}')
+    sys.exit(1)

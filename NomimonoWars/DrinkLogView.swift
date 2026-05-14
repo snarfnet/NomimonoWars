@@ -40,7 +40,7 @@ struct DrinkLogView: View {
     }
 
     private var logHeader: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 5) {
                     Text("DRINK LOG")
@@ -48,8 +48,10 @@ struct DrinkLogView: View {
                         .tracking(1.4)
                         .foregroundStyle(Palette.lime)
                     Text("今日の飲み物を記録")
-                        .font(.system(size: 28, weight: .black, design: .rounded))
+                        .font(.system(size: 24, weight: .black, design: .rounded))
                         .foregroundStyle(Palette.text)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                 }
                 Spacer(minLength: 12)
                 Button {
@@ -58,7 +60,7 @@ struct DrinkLogView: View {
                     Image(systemName: "plus")
                         .font(.system(size: 18, weight: .black))
                         .foregroundStyle(Palette.ink)
-                        .frame(width: 48, height: 48)
+                        .frame(width: 44, height: 44)
                         .background(Palette.lime)
                         .clipShape(Circle())
                 }
@@ -72,8 +74,8 @@ struct DrinkLogView: View {
             }
         }
         .padding(.horizontal, 18)
-        .padding(.top, 14)
-        .padding(.bottom, 16)
+        .padding(.top, 10)
+        .padding(.bottom, 10)
     }
 
     private var todayPill: some View {

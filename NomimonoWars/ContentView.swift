@@ -36,12 +36,14 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            NavigationStack {
-                ZStack {
-                    Palette.bg.ignoresSafeArea()
-                    GeneratedBackground()
-                        .ignoresSafeArea()
-                        .allowsHitTesting(false)
+            ZStack {
+                Palette.bg.ignoresSafeArea()
+                GeneratedBackground()
+                    .ignoresSafeArea()
+                    .allowsHitTesting(false)
+
+                VStack(spacing: 0) {
+                    appHeader
 
                     Group {
                         switch selectedMainTab {
@@ -53,26 +55,8 @@ struct ContentView: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbarBackground(Palette.bg.opacity(0.92), for: .navigationBar)
-                .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        HStack(spacing: 8) {
-                            ZStack {
-                                Circle()
-                                    .fill(Palette.lime)
-                                    .frame(width: 23, height: 23)
-                                Image(systemName: "bolt.fill")
-                                    .font(.system(size: 11, weight: .black))
-                                    .foregroundStyle(Palette.ink)
-                            }
-                            Text("飲み物ウォーズ")
-                                .font(.system(size: 17, weight: .black, design: .rounded))
-                                .foregroundStyle(Palette.text)
-                        }
-                    }
-                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             mainTabBar
 
@@ -84,6 +68,29 @@ struct ContentView: View {
             interstitialManager.loadAd()
             await vm.fetch()
         }
+    }
+
+    private var appHeader: some View {
+        HStack(spacing: 8) {
+            ZStack {
+                Circle()
+                    .fill(Palette.lime)
+                    .frame(width: 24, height: 24)
+                Image(systemName: "bolt.fill")
+                    .font(.system(size: 11, weight: .black))
+                    .foregroundStyle(Palette.ink)
+            }
+            Text("飲み物ウォーズ")
+                .font(.system(size: 17, weight: .black, design: .rounded))
+                .foregroundStyle(Palette.text)
+                .lineLimit(1)
+                .minimumScaleFactor(0.86)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 18)
+        .padding(.top, 8)
+        .padding(.bottom, 8)
+        .background(Palette.bg.opacity(0.82))
     }
 
     // MARK: - Drink View
@@ -98,7 +105,7 @@ struct ContentView: View {
     }
 
     private var hero: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 5) {
                     Text("DRINK RADAR")
@@ -106,7 +113,7 @@ struct ContentView: View {
                         .tracking(1.4)
                         .foregroundStyle(Palette.lime)
                     Text(heroTitle)
-                        .font(.system(size: sizeClass == .regular ? 28 : 32, weight: .black, design: .rounded))
+                        .font(.system(size: sizeClass == .regular ? 26 : 24, weight: .black, design: .rounded))
                         .foregroundStyle(Palette.text)
                         .lineLimit(2)
                         .minimumScaleFactor(0.72)
@@ -122,8 +129,8 @@ struct ContentView: View {
             }
         }
         .padding(.horizontal, 18)
-        .padding(.top, 14)
-        .padding(.bottom, 16)
+        .padding(.top, 10)
+        .padding(.bottom, 10)
     }
 
     private var heroTitle: String {
@@ -149,14 +156,14 @@ struct ContentView: View {
                 .shadow(color: Palette.cyan.opacity(0.18), radius: 18, y: 8)
             VStack(spacing: 4) {
                 Image(systemName: "drop.degreesign.fill")
-                    .font(.system(size: 24, weight: .bold))
+                    .font(.system(size: 20, weight: .bold))
                     .foregroundStyle(Palette.cyan)
                 Text("HOT")
                     .font(.system(size: 10, weight: .black, design: .rounded))
                     .foregroundStyle(Palette.text)
             }
         }
-        .frame(width: 70, height: 70)
+        .frame(width: 56, height: 56)
     }
 
     private func statusPill(icon: String, text: String) -> some View {
@@ -184,7 +191,7 @@ struct ContentView: View {
                                 .lineLimit(1)
                         }
                         .padding(.horizontal, 20)
-                        .padding(.vertical, 13)
+                        .padding(.vertical, 10)
                         .foregroundStyle(vm.currentTab == tab ? Palette.ink : Palette.sub)
                         .background(vm.currentTab == tab ? Palette.lime : Palette.panel)
                         .clipShape(Capsule())
@@ -198,7 +205,7 @@ struct ContentView: View {
             }
             .padding(.horizontal, 16)
         }
-        .padding(.bottom, 10)
+        .padding(.bottom, 8)
     }
 
     @ViewBuilder
@@ -350,7 +357,7 @@ struct ContentView: View {
             }
         }
         .padding(.horizontal, 14)
-        .padding(.vertical, 9)
+        .padding(.vertical, 7)
         .background(
             Palette.bg
                 .overlay(alignment: .top) {

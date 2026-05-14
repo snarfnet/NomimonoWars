@@ -16,15 +16,17 @@ struct StatsView: View {
     }
 
     private var statsHeader: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 10) {
             VStack(alignment: .leading, spacing: 5) {
                 Text("WEEKLY STATS")
                     .font(.system(size: 11, weight: .heavy, design: .rounded))
                     .tracking(1.4)
                     .foregroundStyle(Palette.lime)
                 Text("飲み物レポート")
-                    .font(.system(size: 28, weight: .black, design: .rounded))
+                    .font(.system(size: 24, weight: .black, design: .rounded))
                     .foregroundStyle(Palette.text)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
             }
 
             HStack(spacing: 8) {
@@ -49,8 +51,8 @@ struct StatsView: View {
             }
         }
         .padding(.horizontal, 18)
-        .padding(.top, 14)
-        .padding(.bottom, 16)
+        .padding(.top, 10)
+        .padding(.bottom, 10)
     }
 
     private var statsContent: some View {
