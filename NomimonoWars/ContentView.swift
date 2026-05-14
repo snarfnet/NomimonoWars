@@ -8,34 +8,43 @@ struct ContentView: View {
     @StateObject private var bookmarkManager = BookmarkManager()
     @StateObject private var interstitialManager = InterstitialAdManager()
     @StateObject private var logManager = DrinkLogManager()
-    @State private var selectedMainTab: MainTab = .drink
+    @State private var selectedMainTab: MainTab = .newRelease
 
     @Environment(\.horizontalSizeClass) private var sizeClass
     private var isRegularWidth: Bool { sizeClass == .regular }
-    private var contentMaxWidth: CGFloat { isRegularWidth ? 860 : .infinity }
-    private var pageHorizontalPadding: CGFloat { isRegularWidth ? 22 : 14 }
+    private var contentMaxWidth: CGFloat { isRegularWidth ? 760 : .infinity }
+    private var pageHorizontalPadding: CGFloat { isRegularWidth ? 28 : 14 }
     private var cardColumns: [GridItem] {
-        [GridItem(.adaptive(minimum: isRegularWidth ? 320 : 280, maximum: 420), spacing: 12)]
+        [GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 14)]
     }
 
     enum MainTab: CaseIterable {
-        case drink, log, stats, bookmarks
+        case newRelease, ranking, news, bookmarks
 
         var title: String {
             switch self {
-            case .drink: return "速報"
-            case .log: return "飲みログ"
-            case .stats: return "統計"
+            case .newRelease: return "新商品"
+            case .ranking: return "ランキング"
+            case .news: return "ニュース"
             case .bookmarks: return "保存"
             }
         }
 
         var icon: String {
             switch self {
-            case .drink: return "drop.fill"
-            case .log: return "cup.and.saucer.fill"
-            case .stats: return "chart.bar.fill"
+            case .newRelease: return "sparkles"
+            case .ranking: return "chart.bar.fill"
+            case .news: return "newspaper.fill"
             case .bookmarks: return "bookmark.fill"
+            }
+        }
+
+        var drinkTab: DrinkTab? {
+            switch self {
+            case .newRelease: return .newRelease
+            case .ranking: return .ranking
+            case .news: return .news
+            case .bookmarks: return nil
             }
         }
     }
@@ -53,9 +62,7 @@ struct ContentView: View {
 
                     Group {
                         switch selectedMainTab {
-                        case .drink: drinkView
-                        case .log: DrinkLogView(logManager: logManager)
-                        case .stats: StatsView(logManager: logManager)
+                        case .newRelease, .ranking, .news: drinkView
                         case .bookmarks: bookmarkView
                         }
                     }
@@ -107,18 +114,16 @@ struct ContentView: View {
     private var drinkView: some View {
         VStack(spacing: 0) {
             hero
-            drinkTabBar
             drinkContent
         }
     }
 
     private var hero: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .top) {
+            HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("DRINK RADAR")
+                    Text("飲み物ニュース")
                         .font(.system(size: 11, weight: .heavy, design: .rounded))
-                        .tracking(1.4)
                         .foregroundStyle(Palette.lime)
                     Text(heroTitle)
                         .font(.system(size: sizeClass == .regular ? 26 : 24, weight: .black, design: .rounded))
@@ -127,7 +132,6 @@ struct ContentView: View {
                         .minimumScaleFactor(0.72)
                 }
                 Spacer(minLength: 12)
-                fizzBadge
             }
 
             HStack(spacing: 8) {
@@ -137,8 +141,8 @@ struct ContentView: View {
             }
         }
         .padding(.horizontal, 18)
-        .padding(.top, 10)
-        .padding(.bottom, 10)
+        .padding(.top, 8)
+        .padding(.bottom, 8)
     }
 
     private var heroTitle: String {
@@ -153,27 +157,6 @@ struct ContentView: View {
         vm.sections.reduce(0) { $0 + $1.items.count }
     }
 
-    private var fizzBadge: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(Palette.panel)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
-                        .stroke(Palette.line, lineWidth: 1)
-                )
-                .shadow(color: Palette.cyan.opacity(0.18), radius: 18, y: 8)
-            VStack(spacing: 4) {
-                Image(systemName: "drop.degreesign.fill")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(Palette.cyan)
-                Text("HOT")
-                    .font(.system(size: 10, weight: .black, design: .rounded))
-                    .foregroundStyle(Palette.text)
-            }
-        }
-        .frame(width: 56, height: 56)
-    }
-
     private func statusPill(icon: String, text: String) -> some View {
         Label(text, systemImage: icon)
             .font(.system(size: 12, weight: .bold, design: .rounded))
@@ -182,38 +165,6 @@ struct ContentView: View {
             .padding(.vertical, 7)
             .background(Palette.panelSoft)
             .clipShape(Capsule())
-    }
-
-    private var drinkTabBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
-                ForEach(DrinkTab.allCases, id: \.self) { tab in
-                    Button {
-                        Task { await vm.switchTab(tab) }
-                    } label: {
-                        HStack(spacing: 8) {
-                            Image(systemName: tab.icon)
-                                .font(.system(size: 16, weight: .black))
-                            Text(tab.rawValue)
-                                .font(.system(size: 14, weight: .heavy, design: .rounded))
-                                .lineLimit(1)
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 10)
-                        .foregroundStyle(vm.currentTab == tab ? Palette.ink : Palette.sub)
-                        .background(vm.currentTab == tab ? Palette.lime : Palette.panel)
-                        .clipShape(Capsule())
-                        .overlay(
-                            Capsule()
-                                .stroke(vm.currentTab == tab ? Palette.lime : Palette.line, lineWidth: 1)
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .padding(.horizontal, 16)
-        }
-        .padding(.bottom, 8)
     }
 
     @ViewBuilder
@@ -247,8 +198,8 @@ struct ContentView: View {
                         .padding(.bottom, 12)
                     }
                 }
-                .padding(.top, 4)
-                .padding(.bottom, 14)
+                .padding(.top, 6)
+                .padding(.bottom, 120)
             }
             .scrollIndicators(.hidden)
             .refreshable {
@@ -312,6 +263,7 @@ struct ContentView: View {
                     .padding(.horizontal, pageHorizontalPadding)
                 }
                 .padding(.vertical, 14)
+                .padding(.bottom, 110)
             }
             .scrollIndicators(.hidden)
         }
@@ -385,6 +337,9 @@ struct ContentView: View {
     private func mainTabButton(tab: MainTab) -> some View {
         Button {
             selectedMainTab = tab
+            if let drinkTab = tab.drinkTab {
+                Task { await vm.switchTab(drinkTab) }
+            }
         } label: {
             VStack(spacing: 4) {
                 Image(systemName: tab.icon)
@@ -430,8 +385,8 @@ private struct DrinkCard: View {
             Text(item.title)
                 .font(.system(size: 17, weight: .black, design: .rounded))
                 .foregroundStyle(Palette.text)
-                .lineLimit(3)
                 .lineSpacing(4)
+                .fixedSize(horizontal: false, vertical: true)
 
             HStack(spacing: 10) {
                 Label("読む", systemImage: "safari.fill")
@@ -461,6 +416,7 @@ private struct DrinkCard: View {
             }
         }
         .padding(15)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .fill(Palette.card)

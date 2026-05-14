@@ -75,15 +75,15 @@ if not version_id or version_state in ('READY_FOR_DISTRIBUTION',):
 print(f'Version ID: {version_id} state={version_state}')
 
 # Set App Review Notes
-review_notes = """This build addresses the iPad Air 11-inch layout issue reported under Guideline 4. On regular-width screens, the main app shell is constrained to a readable width, article and bookmark lists use adaptive two-column cards, the drink log uses the same iPad-friendly grid, the add-drink form is limited to a comfortable reading width, and the stats screen splits dense panels into a two-column layout. Controls remain large and easy to tap on both iPad Air 11-inch and iPhone 17 Pro Max.
+review_notes = """This build addresses the iPad Air 11-inch layout and metadata issues reported under Guideline 4 and Guideline 2.3. The bottom navigation now directly shows the four user-facing sections named in the metadata: 新商品, ランキング, ニュース, and 保存. The older extra top category bar was removed to prevent crowding. Article cards now use a single readable column on iPad, have more bottom scroll padding above the navigation/ad area, and no longer truncate article titles, so the top and bottom of articles remain visible.
 
-1. Screen recording: The app launches and immediately displays beverage news articles fetched from Google News RSS. Users can switch between 3 tabs (New Releases, Rankings, News), tap articles to read in Safari, and bookmark articles for later. Users can also record drinks and view simple stats. There are no accounts, logins, or paid features. ATT prompt appears for AdMob ad personalization.
+1. Screen recording: The app launches and immediately displays beverage news articles fetched from Google News RSS. Users can switch between 新商品, ランキング, and ニュース using the bottom navigation. Tap an article card to read the full article in Safari. Tap the bookmark button on an article, then open 保存 from the bottom navigation to see saved articles. There are no accounts, logins, or paid features. ATT prompt appears for AdMob ad personalization.
 
 2. Layout verified for: iPad Air 11-inch screen size, iPhone 17 Pro Max screen size, and compact iPhone screen sizes.
 
 3. Purpose: A Japanese beverage news aggregator. Users can quickly browse the latest drink product releases, sales rankings, and industry news in one place. It solves the problem of scattered beverage information across multiple sites.
 
-4. Setup: No login required. Launch the app and news articles load automatically. Tap any article to read the full story. Use the bookmark button to save articles. Switch tabs to see different categories.
+4. Setup: No login required. Launch the app and news articles load automatically. Use the bottom navigation to switch between 新商品, ランキング, ニュース, and 保存.
 
 5. External services:
 - Google News RSS (news.google.com): Public RSS feeds for beverage-related news articles
