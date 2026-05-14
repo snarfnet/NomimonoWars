@@ -2,6 +2,8 @@ import SwiftUI
 
 struct StatsView: View {
     @ObservedObject var logManager: DrinkLogManager
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegularWidth: Bool { sizeClass == .regular }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -55,15 +57,28 @@ struct StatsView: View {
         .padding(.bottom, 10)
     }
 
+    @ViewBuilder
     private var statsContent: some View {
         ScrollView {
-            VStack(spacing: 14) {
-                weeklyChart
-                categoryBreakdown
-                topDrinks
+            if isRegularWidth {
+                VStack(spacing: 14) {
+                    weeklyChart
+                    HStack(alignment: .top, spacing: 14) {
+                        categoryBreakdown
+                        topDrinks
+                    }
+                }
+                .padding(.horizontal, 22)
+                .padding(.bottom, 14)
+            } else {
+                VStack(spacing: 14) {
+                    weeklyChart
+                    categoryBreakdown
+                    topDrinks
+                }
+                .padding(.horizontal, 14)
+                .padding(.bottom, 14)
             }
-            .padding(.horizontal, 14)
-            .padding(.bottom, 14)
         }
         .scrollIndicators(.hidden)
     }
@@ -108,6 +123,7 @@ struct StatsView: View {
                         .stroke(Palette.line, lineWidth: 1)
                 )
         )
+        .frame(maxWidth: .infinity, alignment: .topLeading)
     }
 
     // MARK: - Category Breakdown
@@ -155,6 +171,7 @@ struct StatsView: View {
                         .stroke(Palette.line, lineWidth: 1)
                 )
         )
+        .frame(maxWidth: .infinity, alignment: .topLeading)
     }
 
     // MARK: - Top Drinks
@@ -207,6 +224,7 @@ struct StatsView: View {
                         .stroke(Palette.line, lineWidth: 1)
                 )
         )
+        .frame(maxWidth: .infinity, alignment: .topLeading)
     }
 
     private func categoryColor(_ cat: DrinkCategory) -> Color {

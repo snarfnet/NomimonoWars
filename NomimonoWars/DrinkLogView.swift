@@ -3,6 +3,13 @@ import SwiftUI
 struct DrinkLogView: View {
     @ObservedObject var logManager: DrinkLogManager
     @State private var showAddSheet = false
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
+    private var isRegularWidth: Bool { sizeClass == .regular }
+    private var pageHorizontalPadding: CGFloat { isRegularWidth ? 22 : 14 }
+    private var cardColumns: [GridItem] {
+        [GridItem(.adaptive(minimum: isRegularWidth ? 320 : 280, maximum: 420), spacing: 12)]
+    }
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -101,12 +108,12 @@ struct DrinkLogView: View {
 
     private var logList: some View {
         ScrollView {
-            LazyVStack(spacing: 10) {
+            LazyVGrid(columns: cardColumns, spacing: 12) {
                 ForEach(logManager.entries) { entry in
                     DrinkLogCard(entry: entry)
-                        .padding(.horizontal, 14)
                 }
             }
+            .padding(.horizontal, pageHorizontalPadding)
             .padding(.vertical, 10)
             .padding(.bottom, 80)
         }
@@ -231,6 +238,7 @@ private struct DrinkLogCard: View {
 struct AddDrinkView: View {
     @ObservedObject var logManager: DrinkLogManager
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.horizontalSizeClass) private var sizeClass
 
     @State private var name = ""
     @State private var category: DrinkCategory = .coffee
@@ -249,6 +257,8 @@ struct AddDrinkView: View {
                         noteField
                     }
                     .padding(20)
+                    .frame(maxWidth: sizeClass == .regular ? 620 : .infinity)
+                    .frame(maxWidth: .infinity)
                 }
             }
             .navigationTitle("飲み物を記録")

@@ -11,6 +11,12 @@ struct ContentView: View {
     @State private var selectedMainTab: MainTab = .drink
 
     @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegularWidth: Bool { sizeClass == .regular }
+    private var contentMaxWidth: CGFloat { isRegularWidth ? 860 : .infinity }
+    private var pageHorizontalPadding: CGFloat { isRegularWidth ? 22 : 14 }
+    private var cardColumns: [GridItem] {
+        [GridItem(.adaptive(minimum: isRegularWidth ? 320 : 280, maximum: 420), spacing: 12)]
+    }
 
     enum MainTab: CaseIterable {
         case drink, log, stats, bookmarks
@@ -55,6 +61,8 @@ struct ContentView: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
+                .frame(maxWidth: contentMaxWidth)
+                .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
@@ -226,15 +234,17 @@ struct ContentView: View {
                 LazyVStack(spacing: 0) {
                     ForEach(vm.sections, id: \.date) { section in
                         sectionHeader(section.date)
-                        ForEach(section.items) { item in
-                            DrinkCard(
-                                item: item,
-                                bookmarkManager: bookmarkManager,
-                                interstitialManager: interstitialManager
-                            )
-                            .padding(.horizontal, 14)
-                            .padding(.bottom, 12)
+                        LazyVGrid(columns: cardColumns, spacing: 12) {
+                            ForEach(section.items) { item in
+                                DrinkCard(
+                                    item: item,
+                                    bookmarkManager: bookmarkManager,
+                                    interstitialManager: interstitialManager
+                                )
+                            }
                         }
+                        .padding(.horizontal, pageHorizontalPadding)
+                        .padding(.bottom, 12)
                     }
                 }
                 .padding(.top, 4)
@@ -290,14 +300,16 @@ struct ContentView: View {
             ScrollView {
                 LazyVStack(spacing: 12) {
                     sectionHeader("保存した記事")
-                    ForEach(bookmarkManager.bookmarks) { item in
-                        DrinkCard(
-                            item: item,
-                            bookmarkManager: bookmarkManager,
-                            interstitialManager: interstitialManager
-                        )
-                        .padding(.horizontal, 14)
+                    LazyVGrid(columns: cardColumns, spacing: 12) {
+                        ForEach(bookmarkManager.bookmarks) { item in
+                            DrinkCard(
+                                item: item,
+                                bookmarkManager: bookmarkManager,
+                                interstitialManager: interstitialManager
+                            )
+                        }
                     }
+                    .padding(.horizontal, pageHorizontalPadding)
                 }
                 .padding(.vertical, 14)
             }
@@ -366,6 +378,8 @@ struct ContentView: View {
                         .frame(height: 1)
                 }
         )
+        .frame(maxWidth: contentMaxWidth)
+        .frame(maxWidth: .infinity)
     }
 
     private func mainTabButton(tab: MainTab) -> some View {

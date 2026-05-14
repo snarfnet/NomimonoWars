@@ -75,11 +75,11 @@ if not version_id or version_state in ('READY_FOR_DISTRIBUTION',):
 print(f'Version ID: {version_id} state={version_state}')
 
 # Set App Review Notes
-review_notes = """This build fixes the crowded top UI reported on iPhone 17 Pro Max and iPad Air 11-inch. The app now uses an in-screen header and shorter section headers so content and controls remain visible.
+review_notes = """This build addresses the iPad Air 11-inch layout issue reported under Guideline 4. On regular-width screens, the main app shell is constrained to a readable width, article and bookmark lists use adaptive two-column cards, the drink log uses the same iPad-friendly grid, the add-drink form is limited to a comfortable reading width, and the stats screen splits dense panels into a two-column layout. Controls remain large and easy to tap on both iPad Air 11-inch and iPhone 17 Pro Max.
 
-1. Screen recording: The app launches and immediately displays beverage news articles fetched from Google News RSS. Users can switch between 3 tabs (New Releases, Rankings, News), tap articles to read in Safari, and bookmark articles for later. There are no accounts, logins, or paid features. ATT prompt appears for AdMob ad personalization.
+1. Screen recording: The app launches and immediately displays beverage news articles fetched from Google News RSS. Users can switch between 3 tabs (New Releases, Rankings, News), tap articles to read in Safari, and bookmark articles for later. Users can also record drinks and view simple stats. There are no accounts, logins, or paid features. ATT prompt appears for AdMob ad personalization.
 
-2. Tested on: iPhone 15 Pro (iOS 18.4), iPhone 16 Pro Max (iOS 18.4), iPhone SE 3rd gen (iOS 18.4)
+2. Layout verified for: iPad Air 11-inch screen size, iPhone 17 Pro Max screen size, and compact iPhone screen sizes.
 
 3. Purpose: A Japanese beverage news aggregator. Users can quickly browse the latest drink product releases, sales rankings, and industry news in one place. It solves the problem of scattered beverage information across multiple sites.
 
