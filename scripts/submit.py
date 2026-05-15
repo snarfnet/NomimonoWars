@@ -93,20 +93,31 @@ review_notes = """This build addresses the iPad Air 11-inch layout and metadata 
 
 7. Not applicable. The app does not operate in a regulated industry and does not include protected third-party material."""
 
+review_contact = {
+    'contactFirstName': 'Tokyo',
+    'contactLastName': 'Nasu',
+    'contactEmail': 'tokyonasu@yahoo.co.jp',
+    'contactPhone': '+818023689194',
+    'demoAccountRequired': False,
+    'demoAccountName': '',
+    'demoAccountPassword': '',
+    'notes': review_notes,
+}
+
 # Check/create appStoreReviewDetail
 r = api('GET', f'/appStoreVersions/{version_id}/appStoreReviewDetail')
 if r.status_code == 200 and r.json().get('data'):
     detail_id = r.json()['data']['id']
     r = api('PATCH', f'/appStoreReviewDetails/{detail_id}', json={
         'data': {'type': 'appStoreReviewDetails', 'id': detail_id,
-                 'attributes': {'notes': review_notes}}
+                 'attributes': review_contact}
     })
     print(f'Review notes updated: {r.status_code}')
 else:
     r = api('POST', '/appStoreReviewDetails', json={
         'data': {
             'type': 'appStoreReviewDetails',
-            'attributes': {'notes': review_notes},
+            'attributes': review_contact,
             'relationships': {
                 'appStoreVersion': {'data': {'type': 'appStoreVersions', 'id': version_id}}
             }
