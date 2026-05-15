@@ -52,7 +52,7 @@ def api(method, path, **kwargs):
 def main():
     states = (
         "PREPARE_FOR_SUBMISSION,DEVELOPER_REJECTED,REJECTED,METADATA_REJECTED,"
-        "READY_FOR_REVIEW,WAITING_FOR_REVIEW,IN_REVIEW,UNRESOLVED_ISSUES"
+        "READY_FOR_REVIEW,WAITING_FOR_REVIEW,IN_REVIEW"
     )
     response = api(
         "GET",
