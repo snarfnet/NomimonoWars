@@ -61,55 +61,43 @@ jobs:
         xcrun simctl boot "$DEVICE_ID" || true
         sleep 5
 
-    - name: Run UI test and capture screenshots via simctl
+    - name: Run UI test
       run: |
-        mkdir -p screenshots
-
-        # Run UI test in background - it taps through tabs with sleep intervals
         xcodebuild test \
           -scheme NomimonoWars \
           -destination "platform=iOS Simulator,id=$DEVICE_ID" \
           -only-testing:NomimonoWarsUITests/ScreenshotTests/testCaptureScreenshots \
           CODE_SIGN_IDENTITY=- \
           CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO 2>&1 &
-        TEST_PID=$!
+          CODE_SIGNING_ALLOWED=NO || true
 
-        # Wait for build + app launch + content load
-        sleep 90
+    - name: Extract screenshots from simulator
+      run: |
+        mkdir -p screenshots
 
-        # Tab 1: 新商品 (app starts here, test waits 5s)
-        xcrun simctl io "$DEVICE_ID" screenshot screenshots/01_shinshōhin.png
-        echo "Captured tab 1"
-        sleep 6
+        # Wait for completion marker
+        for i in $(seq 1 30); do
+          if xcrun simctl spawn "$DEVICE_ID" test -f /tmp/screenshots_done 2>/dev/null; then
+            echo "Screenshots complete marker found"
+            break
+          fi
+          echo "Waiting for screenshots... ($i/30)"
+          sleep 2
+        done
 
-        # Tab 2: ランキング (test taps + waits 3s)
-        xcrun simctl io "$DEVICE_ID" screenshot screenshots/02_ranking.png
-        echo "Captured tab 2"
-        sleep 6
+        # Copy screenshots from simulator
+        for f in 01_shinshōhin 02_ranking 03_news 04_nomilog 05_stats 06_bookmarks; do
+          xcrun simctl spawn "$DEVICE_ID" cat "/tmp/screenshot_${f}.png" > "screenshots/${f}.png" 2>/dev/null
+          if [ -s "screenshots/${f}.png" ]; then
+            SIZE=$(wc -c < "screenshots/${f}.png")
+            echo "Extracted: ${f}.png ($SIZE bytes)"
+          else
+            echo "MISSING: ${f}.png"
+            rm -f "screenshots/${f}.png"
+          fi
+        done
 
-        # Tab 3: ニュース
-        xcrun simctl io "$DEVICE_ID" screenshot screenshots/03_news.png
-        echo "Captured tab 3"
-        sleep 5
-
-        # Tab 4: 飲みログ
-        xcrun simctl io "$DEVICE_ID" screenshot screenshots/04_nomilog.png
-        echo "Captured tab 4"
-        sleep 5
-
-        # Tab 5: 統計
-        xcrun simctl io "$DEVICE_ID" screenshot screenshots/05_stats.png
-        echo "Captured tab 5"
-        sleep 5
-
-        # Tab 6: 保存
-        xcrun simctl io "$DEVICE_ID" screenshot screenshots/06_bookmarks.png
-        echo "Captured tab 6"
-
-        wait $TEST_PID || true
-
-        echo "All screenshots:"
+        echo "Final screenshots:"
         ls -la screenshots/
 
     - name: Upload screenshots artifact

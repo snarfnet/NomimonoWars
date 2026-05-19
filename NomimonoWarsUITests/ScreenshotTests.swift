@@ -11,54 +11,61 @@ final class ScreenshotTests: XCTestCase {
         app.launch()
 
         // Wait for content to load
-        sleep(5)
+        sleep(6)
 
         // Tab 1: 新商品 (default tab)
-        takeScreenshot(named: "01_shinshōhin")
+        saveScreenshot(named: "01_shinshōhin")
 
         // Tab 2: ランキング
-        let rankingTab = app.buttons["ランキング"]
-        if rankingTab.waitForExistence(timeout: 3) {
-            rankingTab.tap()
-            sleep(3)
-            takeScreenshot(named: "02_ranking")
-        }
+        tapTab("ランキング", in: app)
+        sleep(4)
+        saveScreenshot(named: "02_ranking")
 
         // Tab 3: ニュース
-        let newsTab = app.buttons["ニュース"]
-        if newsTab.waitForExistence(timeout: 3) {
-            newsTab.tap()
-            sleep(3)
-            takeScreenshot(named: "03_news")
-        }
+        tapTab("ニュース", in: app)
+        sleep(4)
+        saveScreenshot(named: "03_news")
 
         // Tab 4: 飲みログ
-        let logTab = app.buttons["飲みログ"]
-        if logTab.waitForExistence(timeout: 3) {
-            logTab.tap()
-            sleep(2)
-            takeScreenshot(named: "04_nomilog")
-        }
+        tapTab("飲みログ", in: app)
+        sleep(3)
+        saveScreenshot(named: "04_nomilog")
 
         // Tab 5: 統計
-        let statsTab = app.buttons["統計"]
-        if statsTab.waitForExistence(timeout: 3) {
-            statsTab.tap()
-            sleep(2)
-            takeScreenshot(named: "05_stats")
-        }
+        tapTab("統計", in: app)
+        sleep(3)
+        saveScreenshot(named: "05_stats")
 
         // Tab 6: 保存
-        let bookmarksTab = app.buttons["保存"]
-        if bookmarksTab.waitForExistence(timeout: 3) {
-            bookmarksTab.tap()
-            sleep(2)
-            takeScreenshot(named: "06_bookmarks")
+        tapTab("保存", in: app)
+        sleep(3)
+        saveScreenshot(named: "06_bookmarks")
+
+        // Write completion marker
+        let marker = URL(fileURLWithPath: "/tmp/screenshots_done")
+        try? "done".write(to: marker, atomically: true, encoding: .utf8)
+    }
+
+    private func tapTab(_ label: String, in app: XCUIApplication) {
+        // Try button first, then staticText
+        let button = app.buttons[label]
+        if button.waitForExistence(timeout: 5) {
+            button.tap()
+            return
+        }
+        let text = app.staticTexts[label]
+        if text.waitForExistence(timeout: 3) {
+            text.tap()
         }
     }
 
-    private func takeScreenshot(named name: String) {
+    private func saveScreenshot(named name: String) {
         let screenshot = XCUIScreen.main.screenshot()
+        let data = screenshot.pngRepresentation
+        let path = "/tmp/screenshot_\(name).png"
+        try? data.write(to: URL(fileURLWithPath: path))
+
+        // Also add as XCTest attachment
         let attachment = XCTAttachment(screenshot: screenshot)
         attachment.name = name
         attachment.lifetime = .keepAlways
