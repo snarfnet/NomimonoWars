@@ -8,34 +8,31 @@ final class ScreenshotTests: XCTestCase {
 
     func testCaptureScreenshots() throws {
         let app = XCUIApplication()
+        // Reset authorization to prevent ATT dialog
+        app.launchArguments += ["-ATT_SKIP"]
+        app.resetAuthorizationStatus(for: .tracking)
         app.launch()
 
-        // Dismiss ATT dialog if it appears
-        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
-        let allowButton = springboard.buttons["Allow"]
-        if allowButton.waitForExistence(timeout: 5) {
-            allowButton.tap()
-        } else {
-            // Try Japanese button text
-            let allowJP = springboard.buttons["許可"]
-            if allowJP.waitForExistence(timeout: 2) {
-                allowJP.tap()
+        // Handle any system dialogs automatically
+        addUIInterruptionMonitor(withDescription: "System Dialog") { alert in
+            for label in ["Allow", "許可", "OK", "Don't Allow", "許可しない"] {
+                let btn = alert.buttons[label]
+                if btn.exists {
+                    btn.tap()
+                    return true
+                }
             }
-        }
-
-        // Also handle any system alerts
-        addUIInterruptionMonitor(withDescription: "System Alert") { alert in
-            let allow = alert.buttons["Allow"]
-            if allow.exists { allow.tap(); return true }
-            let allowJP = alert.buttons["許可"]
-            if allowJP.exists { allowJP.tap(); return true }
             return false
         }
-        // Trigger the interruption monitor
-        app.tap()
 
-        // Wait for content to fully load
-        sleep(10)
+        // Wait for content to load
+        sleep(8)
+
+        // Interact to trigger any pending interruption monitors
+        if app.windows.firstMatch.exists {
+            app.windows.firstMatch.tap()
+        }
+        sleep(3)
 
         // Tab 1: 新商品 (default tab)
         saveScreenshot(named: "01_new")
@@ -71,26 +68,14 @@ final class ScreenshotTests: XCTestCase {
     }
 
     private func tapTab(_ label: String, in app: XCUIApplication) {
-        // Scroll the tab bar to find the tab if needed
         let button = app.buttons[label]
         if button.waitForExistence(timeout: 5) {
             button.tap()
             return
         }
-        // Try staticTexts
         let text = app.staticTexts[label]
         if text.waitForExistence(timeout: 3) {
             text.tap()
-            return
-        }
-        // Try scrolling horizontally in the tab bar area to reveal hidden tabs
-        let tabBar = app.scrollViews.firstMatch
-        if tabBar.exists {
-            tabBar.swipeLeft()
-            sleep(1)
-            if button.waitForExistence(timeout: 2) {
-                button.tap()
-            }
         }
     }
 
