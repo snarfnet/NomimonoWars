@@ -90,22 +90,16 @@ struct ContentView: View {
 
             mainTabBar
 
-            if !ProcessInfo.processInfo.arguments.contains("-SKIP_ATT") {
-                AdaptiveBannerAdView(adUnitID: kBannerAdID, maxWidth: UIScreen.main.bounds.width)
-                    .frame(height: 50)
-                    .background(Palette.ink)
-            }
+            #if !targetEnvironment(simulator)
+            AdaptiveBannerAdView(adUnitID: kBannerAdID, maxWidth: UIScreen.main.bounds.width)
+                .frame(height: 50)
+                .background(Palette.ink)
+            #endif
         }
         .task {
-            guard !ProcessInfo.processInfo.arguments.contains("-SKIP_ATT") else {
-                if let drinkTab = selectedMainTab.drinkTab {
-                    await vm.switchTab(drinkTab)
-                } else {
-                    await vm.fetch()
-                }
-                return
-            }
+            #if !targetEnvironment(simulator)
             interstitialManager.loadAd()
+            #endif
             if let drinkTab = selectedMainTab.drinkTab {
                 await vm.switchTab(drinkTab)
             } else {

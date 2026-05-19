@@ -13,7 +13,7 @@ struct NomimonoWarsApp: App {
                 .onChange(of: scenePhase) {
                     if scenePhase == .active && !attRequested {
                         attRequested = true
-                        guard !ProcessInfo.processInfo.arguments.contains("-SKIP_ATT") else { return }
+                        #if !targetEnvironment(simulator)
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                             ATTrackingManager.requestTrackingAuthorization { _ in
                                 DispatchQueue.main.async {
@@ -21,6 +21,7 @@ struct NomimonoWarsApp: App {
                                 }
                             }
                         }
+                        #endif
                     }
                 }
         }
