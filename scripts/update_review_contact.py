@@ -71,6 +71,8 @@ def main():
         **CONTACT,
         "notes": (
             "No login required. This app is a Japanese beverage news aggregator. "
+            "The bottom navigation has three tabs matching the metadata: 新商品, ランキング, and ニュース. "
+            "Saved articles are available from the bookmark icon in the header. "
             "If a call is needed, please use the updated contact phone number."
         ),
     }
