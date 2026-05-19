@@ -75,11 +75,11 @@ if not version_id or version_state in ('READY_FOR_DISTRIBUTION',):
 print(f'Version ID: {version_id} state={version_state}')
 
 # Set App Review Notes
-review_notes = """This build addresses the iPad Air 11-inch layout and metadata issues reported under Guideline 4 and Guideline 2.3. The bottom navigation now directly shows the three tabs named in the metadata: 新商品, ランキング, and ニュース. Saved articles are opened from the bookmark button in the header, so the main tab structure matches the app metadata. The layout now uses a safe-area bottom inset for the tab bar and adaptive AdMob banner, wider iPad content, safer article-card padding, and non-truncated article titles so the top and bottom of articles remain visible.
+review_notes = """This build addresses the iPad Air 11-inch layout issue reported under Guideline 4. The entire app content is now placed inside explicit top and bottom safe-area padding instead of relying on an edge-to-edge custom layout. The tab bar and adaptive AdMob banner sit above the home indicator area, and the header sits below the status area. iPad orientations are limited to portrait and upside-down portrait to avoid the crowded landscape layout. The bottom navigation still directly shows the three tabs named in the metadata: 新商品, ランキング, and ニュース. Saved articles are opened from the bookmark button in the header.
 
 1. Screen recording: The app launches and immediately displays beverage news articles fetched from Google News RSS. Users can switch between 新商品, ランキング, and ニュース using the bottom navigation. Tap an article card to read the full article in Safari. Tap the bookmark button on an article, then tap the bookmark icon in the header to see saved articles. There are no accounts, logins, or paid features. ATT prompt appears for AdMob ad personalization.
 
-2. Layout verified for: iPad Air 11-inch screen size, iPhone 17 Pro Max screen size, and compact iPhone screen sizes.
+2. Layout verified for: iPad Air 11-inch portrait screen size, iPhone 17 Pro Max screen size, and compact iPhone screen sizes.
 
 3. Purpose: A Japanese beverage news aggregator. Users can quickly browse the latest drink product releases, sales rankings, and industry news in one place. It solves the problem of scattered beverage information across multiple sites.
 

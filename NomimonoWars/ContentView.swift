@@ -48,27 +48,37 @@ struct ContentView: View {
     }
 
     var body: some View {
-        ZStack {
-            Palette.bg.ignoresSafeArea()
-            GeneratedBackground()
-                .ignoresSafeArea()
-                .allowsHitTesting(false)
+        GeometryReader { proxy in
+            let topInset = max(proxy.safeAreaInsets.top, 20)
+            let bottomInset = max(proxy.safeAreaInsets.bottom, 18)
 
-            VStack(spacing: 0) {
-                appHeader
-                drinkView
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            ZStack {
+                Palette.bg.ignoresSafeArea()
+                GeneratedBackground()
+                    .ignoresSafeArea()
+                    .allowsHitTesting(false)
+
+                VStack(spacing: 0) {
+                    VStack(spacing: 0) {
+                        appHeader
+                        drinkView
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
+                    .frame(maxWidth: contentMaxWidth)
+                    .frame(maxWidth: .infinity)
+                    .frame(maxHeight: .infinity)
+
+                    VStack(spacing: 0) {
+                        mainTabBar
+                        AdaptiveBannerAdView(adUnitID: kBannerAdID, maxWidth: contentMaxWidth)
+                            .background(Palette.ink)
+                    }
+                    .padding(.bottom, bottomInset)
+                    .background(Palette.bg)
+                }
+                .padding(.top, topInset)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .frame(maxWidth: contentMaxWidth)
-            .frame(maxWidth: .infinity)
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            VStack(spacing: 0) {
-                mainTabBar
-                AdaptiveBannerAdView(adUnitID: kBannerAdID, maxWidth: contentMaxWidth)
-                    .background(Palette.ink)
-            }
-            .background(Palette.bg)
         }
         .sheet(isPresented: $showBookmarks) {
             NavigationStack {
@@ -120,8 +130,7 @@ struct ContentView: View {
             .accessibilityLabel("保存した記事")
         }
         .padding(.horizontal, 18)
-        .padding(.top, 10)
-        .padding(.bottom, 9)
+        .padding(.vertical, 10)
         .background(Palette.bg.opacity(0.82))
     }
 
