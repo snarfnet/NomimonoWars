@@ -53,7 +53,7 @@ jobs:
                     print(d['udid'])
                     sys.exit(0)
 
-        # Not found - need to create. Get available device types and runtimes
+        # Not found - need to create
         dt_out = subprocess.check_output(['xcrun', 'simctl', 'list', 'devicetypes', '-j']).decode()
         dt_data = json.loads(dt_out)
         rt_out = subprocess.check_output(['xcrun', 'simctl', 'list', 'runtimes', '-j']).decode()
@@ -61,25 +61,20 @@ jobs:
 
         ios_rt = [r for r in rt_data['runtimes'] if 'iOS' in r['name'] and r['isAvailable']][-1]
 
-        # Find matching device type by name
         device_type_id = None
         for dt in dt_data['devicetypes']:
             if dt['name'] == target:
                 device_type_id = dt['identifier']
                 break
 
-        # If exact match not found, search for partial match
         if not device_type_id:
-            # For iPad Pro 12.9, try various names
             search = target.lower()
             for dt in dt_data['devicetypes']:
                 if all(word in dt['name'].lower() for word in search.split()):
                     device_type_id = dt['identifier']
-                    print(f'Partial match: {dt[\"name\"]}', file=sys.stderr)
                     break
 
         if not device_type_id:
-            # List available iPad types for debug
             print('Available device types:', file=sys.stderr)
             for dt in dt_data['devicetypes']:
                 if 'iPad' in dt['name'] or 'iPhone' in dt['name']:
@@ -95,6 +90,9 @@ jobs:
         xcrun simctl boot "$DEVICE_ID" || true
         sleep 5
 
+    - name: Clean old screenshots
+      run: rm -f /tmp/nw_screenshot_*.png /tmp/nomimonowars_screenshots_done
+
     - name: Run UI test
       run: |
         xcodebuild test \
@@ -109,9 +107,9 @@ jobs:
       run: |
         mkdir -p screenshots
 
-        # Wait for completion marker (written by UI test on host /tmp)
+        # Wait for completion marker
         for i in $(seq 1 60); do
-          if [ -f /tmp/screenshots_done ]; then
+          if [ -f /tmp/nomimonowars_screenshots_done ]; then
             echo "Screenshots complete marker found"
             break
           fi
@@ -119,12 +117,19 @@ jobs:
           sleep 2
         done
 
-        # Copy screenshots from host /tmp
-        for f in 01_shinshōhin 02_ranking 03_news 04_nomilog 05_stats 06_bookmarks; do
-          if [ -s "/tmp/screenshot_${f}.png" ]; then
-            cp "/tmp/screenshot_${f}.png" "screenshots/${f}.png"
-            SIZE=$(wc -c < "screenshots/${f}.png")
-            echo "Extracted: ${f}.png ($SIZE bytes)"
+        # Copy screenshots from host /tmp with ASCII-safe names
+        for f in 01_new 02_ranking 03_news 04_log 05_stats 06_bookmarks; do
+          SRC="/tmp/nw_screenshot_${f}.png"
+          if [ -s "$SRC" ]; then
+            cp "$SRC" "screenshots/${f}.png"
+            SIZE=$(wc -c < "screenshots/${f}.png" | tr -d ' ')
+            # Get pixel dimensions
+            DIMS=$(python3 -c "
+        from PIL import Image
+        img = Image.open('screenshots/${f}.png')
+        print(f'{img.width}x{img.height}')
+        " 2>/dev/null || sips -g pixelWidth -g pixelHeight "screenshots/${f}.png" 2>/dev/null | grep pixel | awk '{print $2}' | tr '\n' 'x' | sed 's/x$//')
+            echo "Extracted: ${f}.png ($SIZE bytes, ${DIMS})"
           else
             echo "MISSING: ${f}.png"
           fi
@@ -139,6 +144,7 @@ jobs:
           echo "No screenshots captured!"
           exit 1
         fi
+        echo "Total: $COUNT screenshots"
 
     - name: Upload screenshots artifact
       uses: actions/upload-artifact@v4
@@ -155,9 +161,6 @@ jobs:
 
     - name: Install dependencies
       run: pip3 install --break-system-packages PyJWT requests
-
-    - name: Delete existing screenshots
-      run: python3 scripts/delete_screenshots.py
 
     - name: Upload to App Store Connect
       run: |

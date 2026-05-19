@@ -14,7 +14,7 @@ final class ScreenshotTests: XCTestCase {
         sleep(6)
 
         // Tab 1: 新商品 (default tab)
-        saveScreenshot(named: "01_shinshōhin")
+        saveScreenshot(named: "01_new")
 
         // Tab 2: ランキング
         tapTab("ランキング", in: app)
@@ -29,7 +29,7 @@ final class ScreenshotTests: XCTestCase {
         // Tab 4: 飲みログ
         tapTab("飲みログ", in: app)
         sleep(3)
-        saveScreenshot(named: "04_nomilog")
+        saveScreenshot(named: "04_log")
 
         // Tab 5: 統計
         tapTab("統計", in: app)
@@ -42,12 +42,11 @@ final class ScreenshotTests: XCTestCase {
         saveScreenshot(named: "06_bookmarks")
 
         // Write completion marker
-        let marker = URL(fileURLWithPath: "/tmp/screenshots_done")
+        let marker = URL(fileURLWithPath: "/tmp/nomimonowars_screenshots_done")
         try? "done".write(to: marker, atomically: true, encoding: .utf8)
     }
 
     private func tapTab(_ label: String, in app: XCUIApplication) {
-        // Try button first, then staticText
         let button = app.buttons[label]
         if button.waitForExistence(timeout: 5) {
             button.tap()
@@ -62,10 +61,9 @@ final class ScreenshotTests: XCTestCase {
     private func saveScreenshot(named name: String) {
         let screenshot = XCUIScreen.main.screenshot()
         let data = screenshot.pngRepresentation
-        let path = "/tmp/screenshot_\(name).png"
+        let path = "/tmp/nw_screenshot_\(name).png"
         try? data.write(to: URL(fileURLWithPath: path))
 
-        // Also add as XCTest attachment
         let attachment = XCTAttachment(screenshot: screenshot)
         attachment.name = name
         attachment.lifetime = .keepAlways
