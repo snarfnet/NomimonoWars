@@ -8,31 +8,11 @@ final class ScreenshotTests: XCTestCase {
 
     func testCaptureScreenshots() throws {
         let app = XCUIApplication()
-        // Reset authorization to prevent ATT dialog
-        app.launchArguments += ["-ATT_SKIP"]
-        app.resetAuthorizationStatus(for: .userTracking)
+        app.launchArguments += ["-SKIP_ATT"]
         app.launch()
 
-        // Handle any system dialogs automatically
-        addUIInterruptionMonitor(withDescription: "System Dialog") { alert in
-            for label in ["Allow", "許可", "OK", "Don't Allow", "許可しない"] {
-                let btn = alert.buttons[label]
-                if btn.exists {
-                    btn.tap()
-                    return true
-                }
-            }
-            return false
-        }
-
         // Wait for content to load
-        sleep(8)
-
-        // Interact to trigger any pending interruption monitors
-        if app.windows.firstMatch.exists {
-            app.windows.firstMatch.tap()
-        }
-        sleep(3)
+        sleep(10)
 
         // Tab 1: 新商品 (default tab)
         saveScreenshot(named: "01_new")
@@ -83,7 +63,6 @@ final class ScreenshotTests: XCTestCase {
         let screenshot = XCUIScreen.main.screenshot()
         let image = screenshot.image
 
-        // Render without alpha channel (ASC rejects PNGs with transparency)
         let format = UIGraphicsImageRendererFormat()
         format.scale = image.scale
         format.opaque = true
