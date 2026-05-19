@@ -11,6 +11,18 @@ result = subprocess.run(
     ['xcrun', 'xcresulttool', 'get', '--format', 'json', '--path', xcresult],
     capture_output=True, text=True
 )
+if result.returncode != 0 or not result.stdout.strip():
+    print(f"xcresulttool failed (rc={result.returncode})")
+    print(f"stderr: {result.stderr[:500]}")
+    # Try legacy format
+    result = subprocess.run(
+        ['xcrun', 'xcresulttool', 'get', '--path', xcresult, '--format', 'json'],
+        capture_output=True, text=True
+    )
+    if not result.stdout.strip():
+        print("No xcresult data available")
+        sys.exit(1)
+
 root = json.loads(result.stdout)
 
 def find_attachments(obj, path=""):
