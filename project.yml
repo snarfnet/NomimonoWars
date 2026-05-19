@@ -42,3 +42,4 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.tokyonasu.nomimonowars.uitests
+        GENERATE_INFOPLIST_FILE: YES
