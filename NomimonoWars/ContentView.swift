@@ -90,7 +90,7 @@ struct ContentView: View {
 
             mainTabBar
 
-            BannerAdView(adUnitID: kBannerAdID)
+            AdaptiveBannerAdView(adUnitID: kBannerAdID, maxWidth: UIScreen.main.bounds.width)
                 .frame(height: 50)
                 .background(Palette.ink)
         }
