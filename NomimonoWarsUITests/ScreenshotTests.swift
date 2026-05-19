@@ -81,9 +81,18 @@ final class ScreenshotTests: XCTestCase {
 
     private func saveScreenshot(named name: String) {
         let screenshot = XCUIScreen.main.screenshot()
-        let data = screenshot.pngRepresentation
-        let path = "/tmp/nw_screenshot_\(name).png"
-        try? data.write(to: URL(fileURLWithPath: path))
+        let image = screenshot.image
+
+        // Render without alpha channel (ASC rejects PNGs with transparency)
+        let renderer = UIGraphicsImageRenderer(size: image.size)
+        let opaqueImage = renderer.image { ctx in
+            image.draw(at: .zero)
+        }
+
+        if let data = opaqueImage.pngData() {
+            let path = "/tmp/nw_screenshot_\(name).png"
+            try? data.write(to: URL(fileURLWithPath: path))
+        }
 
         let attachment = XCTAttachment(screenshot: screenshot)
         attachment.name = name

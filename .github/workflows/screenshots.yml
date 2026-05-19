@@ -116,7 +116,7 @@ jobs:
           sleep 2
         done
 
-        # Copy screenshots from host /tmp with ASCII-safe names
+        # Copy screenshots from host /tmp and remove alpha channel
         for f in 01_new 02_ranking 03_news 04_log 05_stats 06_bookmarks; do
           SRC="/tmp/nw_screenshot_${f}.png"
           if [ -s "$SRC" ]; then
