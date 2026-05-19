@@ -41,20 +41,56 @@ jobs:
 
     - name: Boot simulator
       run: |
-        DEVICE_ID=$(xcrun simctl list devices available -j | python3 -c "
-        import json, sys
-        data = json.load(sys.stdin)
+        DEVICE_ID=$(python3 -c "
+        import json, subprocess, sys
+
         target = '${{ matrix.device }}'
+
+        # Check existing devices first
+        out = subprocess.check_output(['xcrun', 'simctl', 'list', 'devices', 'available', '-j']).decode()
+        data = json.loads(out)
         for runtime, devices in data['devices'].items():
             for d in devices:
                 if d['name'] == target and d['isAvailable']:
                     print(d['udid'])
                     sys.exit(0)
-        import subprocess
-        runtimes = subprocess.check_output(['xcrun', 'simctl', 'list', 'runtimes', '-j']).decode()
-        rt_data = json.loads(runtimes)
+
+        # Not found - need to create. Get available device types and runtimes
+        dt_out = subprocess.check_output(['xcrun', 'simctl', 'list', 'devicetypes', '-j']).decode()
+        dt_data = json.loads(dt_out)
+        rt_out = subprocess.check_output(['xcrun', 'simctl', 'list', 'runtimes', '-j']).decode()
+        rt_data = json.loads(rt_out)
+
         ios_rt = [r for r in rt_data['runtimes'] if 'iOS' in r['name'] and r['isAvailable']][-1]
-        result = subprocess.check_output(['xcrun', 'simctl', 'create', target, target.replace(' ', ''), ios_rt['identifier']]).decode().strip()
+
+        # Find matching device type by name
+        device_type_id = None
+        for dt in dt_data['devicetypes']:
+            if dt['name'] == target:
+                device_type_id = dt['identifier']
+                break
+
+        # If exact match not found, search for partial match
+        if not device_type_id:
+            # For iPad Pro 12.9, try various names
+            search = target.lower()
+            for dt in dt_data['devicetypes']:
+                if all(word in dt['name'].lower() for word in search.split()):
+                    device_type_id = dt['identifier']
+                    print(f'Partial match: {dt[\"name\"]}', file=sys.stderr)
+                    break
+
+        if not device_type_id:
+            # List available iPad types for debug
+            print('Available device types:', file=sys.stderr)
+            for dt in dt_data['devicetypes']:
+                if 'iPad' in dt['name'] or 'iPhone' in dt['name']:
+                    print(f'  {dt[\"name\"]}: {dt[\"identifier\"]}', file=sys.stderr)
+            sys.exit(1)
+
+        result = subprocess.check_output([
+            'xcrun', 'simctl', 'create', target, device_type_id, ios_rt['identifier']
+        ]).decode().strip()
         print(result)
         ")
         echo "DEVICE_ID=$DEVICE_ID" >> $GITHUB_ENV
