@@ -84,7 +84,10 @@ final class ScreenshotTests: XCTestCase {
         let image = screenshot.image
 
         // Render without alpha channel (ASC rejects PNGs with transparency)
-        let renderer = UIGraphicsImageRenderer(size: image.size)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = image.scale
+        format.opaque = true
+        let renderer = UIGraphicsImageRenderer(size: image.size, format: format)
         let opaqueImage = renderer.image { ctx in
             image.draw(at: .zero)
         }
