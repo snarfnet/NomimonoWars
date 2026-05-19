@@ -15,12 +15,12 @@ final class ScreenshotTests: XCTestCase {
         let isRunning = app.wait(for: .runningForeground, timeout: 30)
         XCTAssertTrue(isRunning, "App failed to launch or crashed")
 
-        guard isRunning else {
+        if !isRunning {
             // Try to relaunch
             app.launch()
             let retry = app.wait(for: .runningForeground, timeout: 30)
             XCTAssertTrue(retry, "App failed to launch on retry")
-            guard retry else { return }
+            if !retry { return }
         }
 
         // Wait for content to load
