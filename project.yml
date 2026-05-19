@@ -32,6 +32,17 @@ targets:
         PRODUCT_NAME: NomimonoWars
     info:
       path: NomimonoWars/Info.plist
+
+  NomimonoWarsUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [NomimonoWarsUITests]
+    dependencies:
+      - target: NomimonoWars
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tokyonasu.nomimonowars.uitests
+    info:
       properties:
         CFBundleName: "飲み物ウォーズ"
         CFBundleDisplayName: "飲み物ウォーズ"
