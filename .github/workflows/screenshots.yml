@@ -12,11 +12,11 @@ jobs:
         include:
           - device: "iPhone 16 Pro Max"
             display: "APP_IPHONE_69"
-          - device: "iPhone 16 Pro"
+          - device: "iPhone 16 Plus"
             display: "APP_IPHONE_67"
-          - device: "iPhone SE (3rd generation)"
+          - device: "iPhone 8 Plus"
             display: "APP_IPHONE_55"
-          - device: "iPad Air 11-inch (M3)"
+          - device: "iPad Pro 12.9-inch (6th generation)"
             display: "APP_IPAD_PRO_3GEN_129"
 
     steps:
