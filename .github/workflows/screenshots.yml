@@ -11,6 +11,8 @@ jobs:
       matrix:
         include:
           - device: "iPhone 16 Pro Max"
+            display: "APP_IPHONE_69"
+          - device: "iPhone 16 Pro"
             display: "APP_IPHONE_67"
           - device: "iPhone SE (3rd generation)"
             display: "APP_IPHONE_55"
@@ -125,6 +127,9 @@ jobs:
 
     - name: Install dependencies
       run: pip3 install --break-system-packages PyJWT requests
+
+    - name: Delete existing screenshots
+      run: python3 scripts/delete_screenshots.py
 
     - name: Upload to App Store Connect
       run: |
