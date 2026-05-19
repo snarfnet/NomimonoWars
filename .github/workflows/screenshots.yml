@@ -71,34 +71,40 @@ jobs:
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO || true
 
-    - name: Extract screenshots from simulator
+    - name: Extract screenshots
       run: |
         mkdir -p screenshots
 
-        # Wait for completion marker
-        for i in $(seq 1 30); do
-          if xcrun simctl spawn "$DEVICE_ID" test -f /tmp/screenshots_done 2>/dev/null; then
+        # Wait for completion marker (written by UI test on host /tmp)
+        for i in $(seq 1 60); do
+          if [ -f /tmp/screenshots_done ]; then
             echo "Screenshots complete marker found"
             break
           fi
-          echo "Waiting for screenshots... ($i/30)"
+          echo "Waiting for screenshots... ($i/60)"
           sleep 2
         done
 
-        # Copy screenshots from simulator
+        # Copy screenshots from host /tmp
         for f in 01_shinshōhin 02_ranking 03_news 04_nomilog 05_stats 06_bookmarks; do
-          xcrun simctl spawn "$DEVICE_ID" cat "/tmp/screenshot_${f}.png" > "screenshots/${f}.png" 2>/dev/null
-          if [ -s "screenshots/${f}.png" ]; then
+          if [ -s "/tmp/screenshot_${f}.png" ]; then
+            cp "/tmp/screenshot_${f}.png" "screenshots/${f}.png"
             SIZE=$(wc -c < "screenshots/${f}.png")
             echo "Extracted: ${f}.png ($SIZE bytes)"
           else
             echo "MISSING: ${f}.png"
-            rm -f "screenshots/${f}.png"
           fi
         done
 
         echo "Final screenshots:"
         ls -la screenshots/
+
+        # Fail if no screenshots found
+        COUNT=$(ls screenshots/*.png 2>/dev/null | wc -l)
+        if [ "$COUNT" -eq 0 ]; then
+          echo "No screenshots captured!"
+          exit 1
+        fi
 
     - name: Upload screenshots artifact
       uses: actions/upload-artifact@v4
