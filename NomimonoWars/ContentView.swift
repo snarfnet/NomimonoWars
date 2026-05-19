@@ -9,24 +9,20 @@ struct ContentView: View {
     @StateObject private var interstitialManager = InterstitialAdManager()
     @StateObject private var logManager = DrinkLogManager()
     @State private var selectedMainTab: MainTab = .newRelease
-    @State private var showBookmarks = false
 
     @Environment(\.horizontalSizeClass) private var sizeClass
-    private var isRegularWidth: Bool { sizeClass == .regular }
-    private var contentMaxWidth: CGFloat { isRegularWidth ? 820 : .infinity }
-    private var pageHorizontalPadding: CGFloat { isRegularWidth ? 34 : 14 }
-    private var cardColumns: [GridItem] {
-        [GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 14)]
-    }
 
     enum MainTab: CaseIterable {
-        case newRelease, ranking, news
+        case newRelease, ranking, news, log, stats, bookmarks
 
         var title: String {
             switch self {
             case .newRelease: return "新商品"
             case .ranking: return "ランキング"
             case .news: return "ニュース"
+            case .log: return "飲みログ"
+            case .stats: return "統計"
+            case .bookmarks: return "保存"
             }
         }
 
@@ -35,103 +31,77 @@ struct ContentView: View {
             case .newRelease: return "sparkles"
             case .ranking: return "chart.bar.fill"
             case .news: return "newspaper.fill"
+            case .log: return "cup.and.saucer.fill"
+            case .stats: return "chart.pie.fill"
+            case .bookmarks: return "bookmark.fill"
             }
         }
 
-        var drinkTab: DrinkTab {
+        var drinkTab: DrinkTab? {
             switch self {
             case .newRelease: return .newRelease
             case .ranking: return .ranking
             case .news: return .news
+            default: return nil
             }
         }
     }
 
     var body: some View {
-        GeometryReader { proxy in
-            let topInset = max(proxy.safeAreaInsets.top, 20)
-            let bottomInset = max(proxy.safeAreaInsets.bottom, 18)
-
-            ZStack {
-                Palette.bg.ignoresSafeArea()
-                GeneratedBackground()
-                    .ignoresSafeArea()
-                    .allowsHitTesting(false)
-
-                VStack(spacing: 0) {
-                    VStack(spacing: 0) {
-                        appHeader
-                        drinkView
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                    .frame(maxWidth: contentMaxWidth)
-                    .frame(maxWidth: .infinity)
-                    .frame(maxHeight: .infinity)
-
-                    VStack(spacing: 0) {
-                        mainTabBar
-                        AdaptiveBannerAdView(adUnitID: kBannerAdID, maxWidth: contentMaxWidth)
-                            .background(Palette.ink)
-                    }
-                    .padding(.bottom, bottomInset)
-                    .background(Palette.bg)
-                }
-                .padding(.top, topInset)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-        }
-        .sheet(isPresented: $showBookmarks) {
+        VStack(spacing: 0) {
             NavigationStack {
-                bookmarkView
-                    .navigationTitle("保存した記事")
-                    .toolbar {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button("閉じる") {
-                                showBookmarks = false
-                            }
+                ZStack {
+                    Palette.bg.ignoresSafeArea()
+                    GeneratedBackground()
+                        .ignoresSafeArea()
+                        .allowsHitTesting(false)
+
+                    Group {
+                        switch selectedMainTab {
+                        case .newRelease, .ranking, .news:
+                            drinkView
+                        case .log: DrinkLogView(logManager: logManager)
+                        case .stats: StatsView(logManager: logManager)
+                        case .bookmarks: bookmarkView
                         }
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbarBackground(Palette.bg.opacity(0.92), for: .navigationBar)
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        HStack(spacing: 8) {
+                            ZStack {
+                                Circle()
+                                    .fill(Palette.lime)
+                                    .frame(width: 23, height: 23)
+                                Image(systemName: "bolt.fill")
+                                    .font(.system(size: 11, weight: .black))
+                                    .foregroundStyle(Palette.ink)
+                            }
+                            Text("飲み物ウォーズ")
+                                .font(.system(size: 17, weight: .black, design: .rounded))
+                                .foregroundStyle(Palette.text)
+                        }
+                    }
+                }
             }
-            .presentationDetents([.medium, .large])
+
+            mainTabBar
+
+            BannerAdView(adUnitID: kBannerAdID)
+                .frame(height: 50)
+                .background(Palette.ink)
         }
         .task {
             interstitialManager.loadAd()
-            await vm.fetch()
-        }
-    }
-
-    private var appHeader: some View {
-        HStack(spacing: 8) {
-            ZStack {
-                Circle()
-                    .fill(Palette.lime)
-                    .frame(width: 24, height: 24)
-                Image(systemName: "bolt.fill")
-                    .font(.system(size: 11, weight: .black))
-                    .foregroundStyle(Palette.ink)
+            if let drinkTab = selectedMainTab.drinkTab {
+                await vm.switchTab(drinkTab)
+            } else {
+                await vm.fetch()
             }
-            Text("飲み物ウォーズ")
-                .font(.system(size: 17, weight: .black, design: .rounded))
-                .foregroundStyle(Palette.text)
-                .lineLimit(1)
-                .minimumScaleFactor(0.86)
-            Spacer(minLength: 0)
-            Button {
-                showBookmarks = true
-            } label: {
-                Image(systemName: "bookmark.fill")
-                    .font(.system(size: 13, weight: .black))
-                    .foregroundStyle(Palette.ink)
-                    .frame(width: 34, height: 34)
-                    .background(Palette.lime)
-                    .clipShape(Circle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("保存した記事")
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 10)
-        .background(Palette.bg.opacity(0.82))
     }
 
     // MARK: - Drink View
@@ -145,20 +115,21 @@ struct ContentView: View {
     }
 
     private var hero: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .center) {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("飲み物ニュース")
+                    Text("DRINK RADAR")
                         .font(.system(size: 11, weight: .heavy, design: .rounded))
+                        .tracking(1.4)
                         .foregroundStyle(Palette.lime)
                     Text(heroTitle)
-                        .font(.system(size: sizeClass == .regular ? 26 : 24, weight: .black, design: .rounded))
+                        .font(.system(size: sizeClass == .regular ? 28 : 32, weight: .black, design: .rounded))
                         .foregroundStyle(Palette.text)
                         .lineLimit(2)
                         .minimumScaleFactor(0.72)
                 }
-                .layoutPriority(1)
                 Spacer(minLength: 12)
+                fizzBadge
             }
 
             HStack(spacing: 8) {
@@ -168,20 +139,42 @@ struct ContentView: View {
             }
         }
         .padding(.horizontal, 18)
-        .padding(.top, 8)
-        .padding(.bottom, 6)
+        .padding(.top, 14)
+        .padding(.bottom, 16)
     }
 
     private var heroTitle: String {
-        switch vm.currentTab {
+        switch selectedMainTab {
         case .newRelease: return "新作ドリンクを迎撃"
         case .ranking: return "売れ筋の気配を追跡"
         case .news: return "飲料ニュースを即チェック"
+        default: return ""
         }
     }
 
     private var itemCount: Int {
         vm.sections.reduce(0) { $0 + $1.items.count }
+    }
+
+    private var fizzBadge: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(Palette.panel)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .stroke(Palette.line, lineWidth: 1)
+                )
+                .shadow(color: Palette.cyan.opacity(0.18), radius: 18, y: 8)
+            VStack(spacing: 4) {
+                Image(systemName: "drop.degreesign.fill")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundStyle(Palette.cyan)
+                Text("HOT")
+                    .font(.system(size: 10, weight: .black, design: .rounded))
+                    .foregroundStyle(Palette.text)
+            }
+        }
+        .frame(width: 70, height: 70)
     }
 
     private func statusPill(icon: String, text: String) -> some View {
@@ -212,21 +205,19 @@ struct ContentView: View {
                 LazyVStack(spacing: 0) {
                     ForEach(vm.sections, id: \.date) { section in
                         sectionHeader(section.date)
-                        LazyVGrid(columns: cardColumns, spacing: 12) {
-                            ForEach(section.items) { item in
-                                DrinkCard(
-                                    item: item,
-                                    bookmarkManager: bookmarkManager,
-                                    interstitialManager: interstitialManager
-                                )
-                            }
+                        ForEach(section.items) { item in
+                            DrinkCard(
+                                item: item,
+                                bookmarkManager: bookmarkManager,
+                                interstitialManager: interstitialManager
+                            )
+                            .padding(.horizontal, 14)
+                            .padding(.bottom, 12)
                         }
-                        .padding(.horizontal, pageHorizontalPadding)
-                        .padding(.bottom, 12)
                     }
                 }
-                .padding(.top, 6)
-                .padding(.bottom, 20)
+                .padding(.top, 4)
+                .padding(.bottom, 14)
             }
             .scrollIndicators(.hidden)
             .refreshable {
@@ -278,19 +269,16 @@ struct ContentView: View {
             ScrollView {
                 LazyVStack(spacing: 12) {
                     sectionHeader("保存した記事")
-                    LazyVGrid(columns: cardColumns, spacing: 12) {
-                        ForEach(bookmarkManager.bookmarks) { item in
-                            DrinkCard(
-                                item: item,
-                                bookmarkManager: bookmarkManager,
-                                interstitialManager: interstitialManager
-                            )
-                        }
+                    ForEach(bookmarkManager.bookmarks) { item in
+                        DrinkCard(
+                            item: item,
+                            bookmarkManager: bookmarkManager,
+                            interstitialManager: interstitialManager
+                        )
+                        .padding(.horizontal, 14)
                     }
-                    .padding(.horizontal, pageHorizontalPadding)
                 }
                 .padding(.vertical, 14)
-                .padding(.bottom, 20)
             }
             .scrollIndicators(.hidden)
         }
@@ -342,13 +330,15 @@ struct ContentView: View {
     // MARK: - Main Tab Bar
 
     private var mainTabBar: some View {
-        HStack(spacing: 6) {
-            ForEach(MainTab.allCases, id: \.self) { tab in
-                mainTabButton(tab: tab)
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 2) {
+                ForEach(MainTab.allCases, id: \.self) { tab in
+                    mainTabButton(tab: tab)
+                }
             }
+            .padding(.horizontal, 8)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 7)
+        .padding(.vertical, 9)
         .background(
             Palette.bg
                 .overlay(alignment: .top) {
@@ -357,14 +347,14 @@ struct ContentView: View {
                         .frame(height: 1)
                 }
         )
-        .frame(maxWidth: contentMaxWidth)
-        .frame(maxWidth: .infinity)
     }
 
     private func mainTabButton(tab: MainTab) -> some View {
         Button {
             selectedMainTab = tab
-            Task { await vm.switchTab(tab.drinkTab) }
+            if let drinkTab = tab.drinkTab {
+                Task { await vm.switchTab(drinkTab) }
+            }
         } label: {
             VStack(spacing: 4) {
                 Image(systemName: tab.icon)
@@ -397,7 +387,6 @@ private struct DrinkCard: View {
                     .font(.system(size: 11, weight: .black, design: .rounded))
                     .foregroundStyle(Palette.ink)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.78)
                     .padding(.horizontal, 9)
                     .padding(.vertical, 5)
                     .background(Palette.cyan)
@@ -406,17 +395,13 @@ private struct DrinkCard: View {
                 Text(item.timeLabel)
                     .font(.system(size: 11, weight: .bold, design: .rounded))
                     .foregroundStyle(Palette.sub)
-                    .lineLimit(1)
             }
 
             Text(item.title)
                 .font(.system(size: 17, weight: .black, design: .rounded))
                 .foregroundStyle(Palette.text)
+                .lineLimit(3)
                 .lineSpacing(4)
-                .lineLimit(nil)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.vertical, 2)
-                .layoutPriority(1)
 
             HStack(spacing: 10) {
                 Label("読む", systemImage: "safari.fill")
@@ -445,9 +430,7 @@ private struct DrinkCard: View {
                     .clipShape(Circle())
             }
         }
-        .padding(.horizontal, 15)
-        .padding(.vertical, 17)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(15)
         .background(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .fill(Palette.card)
