@@ -3,7 +3,7 @@ import XCTest
 final class ScreenshotTests: XCTestCase {
 
     override func setUpWithError() throws {
-        continueAfterFailure = false
+        continueAfterFailure = true
     }
 
     func testCaptureScreenshots() throws {
@@ -11,36 +11,51 @@ final class ScreenshotTests: XCTestCase {
         app.launchArguments += ["-SKIP_ATT"]
         app.launch()
 
+        // Verify the app is actually running
+        let isRunning = app.wait(for: .runningForeground, timeout: 30)
+        XCTAssertTrue(isRunning, "App failed to launch or crashed")
+
+        guard isRunning else {
+            // Try to relaunch
+            app.launch()
+            let retry = app.wait(for: .runningForeground, timeout: 30)
+            XCTAssertTrue(retry, "App failed to launch on retry")
+            guard retry else { return }
+        }
+
         // Wait for content to load
         sleep(10)
 
+        // Verify app is still running after content load
+        XCTAssertTrue(app.state == .runningForeground, "App crashed during content load")
+
         // Tab 1: 新商品 (default tab)
-        saveScreenshot(named: "01_new")
+        saveScreenshot(named: "01_new", app: app)
 
         // Tab 2: ランキング
         tapTab("ランキング", in: app)
         sleep(5)
-        saveScreenshot(named: "02_ranking")
+        saveScreenshot(named: "02_ranking", app: app)
 
         // Tab 3: ニュース
         tapTab("ニュース", in: app)
         sleep(5)
-        saveScreenshot(named: "03_news")
+        saveScreenshot(named: "03_news", app: app)
 
         // Tab 4: 飲みログ
         tapTab("飲みログ", in: app)
         sleep(3)
-        saveScreenshot(named: "04_log")
+        saveScreenshot(named: "04_log", app: app)
 
         // Tab 5: 統計
         tapTab("統計", in: app)
         sleep(3)
-        saveScreenshot(named: "05_stats")
+        saveScreenshot(named: "05_stats", app: app)
 
         // Tab 6: 保存
         tapTab("保存", in: app)
         sleep(3)
-        saveScreenshot(named: "06_bookmarks")
+        saveScreenshot(named: "06_bookmarks", app: app)
 
         // Write completion marker
         let marker = URL(fileURLWithPath: "/tmp/nomimonowars_screenshots_done")
@@ -59,8 +74,14 @@ final class ScreenshotTests: XCTestCase {
         }
     }
 
-    private func saveScreenshot(named name: String) {
-        let screenshot = XCUIScreen.main.screenshot()
+    private func saveScreenshot(named name: String, app: XCUIApplication) {
+        // Use app.screenshot() to capture only the app, not the home screen
+        guard app.state == .runningForeground else {
+            XCTFail("App not running when trying to capture \(name)")
+            return
+        }
+
+        let screenshot = app.screenshot()
         let image = screenshot.image
 
         let format = UIGraphicsImageRendererFormat()
