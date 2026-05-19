@@ -13,14 +13,11 @@ struct NomimonoWarsApp: App {
                 .onChange(of: scenePhase) {
                     if scenePhase == .active && !attRequested {
                         attRequested = true
-                        if ProcessInfo.processInfo.arguments.contains("-SKIP_ATT") {
-                            GADMobileAds.sharedInstance().start { _ in }
-                        } else {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                                ATTrackingManager.requestTrackingAuthorization { _ in
-                                    DispatchQueue.main.async {
-                                        GADMobileAds.sharedInstance().start { _ in }
-                                    }
+                        guard !ProcessInfo.processInfo.arguments.contains("-SKIP_ATT") else { return }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                            ATTrackingManager.requestTrackingAuthorization { _ in
+                                DispatchQueue.main.async {
+                                    GADMobileAds.sharedInstance().start { _ in }
                                 }
                             }
                         }
