@@ -1,3 +1,12 @@
+#if SCREENSHOT_MODE
+import Foundation
+
+@MainActor
+class InterstitialAdManager: NSObject, ObservableObject {
+    func countTap() {}
+    func loadAd() {}
+}
+#else
 import GoogleMobileAds
 
 @MainActor
@@ -40,3 +49,4 @@ class InterstitialAdManager: NSObject, ObservableObject {
         loadAd()
     }
 }
+#endif

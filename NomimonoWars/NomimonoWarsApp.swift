@@ -1,6 +1,8 @@
 import SwiftUI
+#if !SCREENSHOT_MODE
 import GoogleMobileAds
 import AppTrackingTransparency
+#endif
 
 @main
 struct NomimonoWarsApp: App {
@@ -11,9 +13,9 @@ struct NomimonoWarsApp: App {
         WindowGroup {
             ContentView()
                 .onChange(of: scenePhase) {
+                    #if !SCREENSHOT_MODE
                     if scenePhase == .active && !attRequested {
                         attRequested = true
-                        #if !targetEnvironment(simulator)
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                             ATTrackingManager.requestTrackingAuthorization { _ in
                                 DispatchQueue.main.async {
@@ -21,8 +23,8 @@ struct NomimonoWarsApp: App {
                                 }
                             }
                         }
-                        #endif
                     }
+                    #endif
                 }
         }
     }

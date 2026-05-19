@@ -1,3 +1,11 @@
+#if SCREENSHOT_MODE
+import SwiftUI
+struct AdaptiveBannerAdView: View {
+    let adUnitID: String
+    let maxWidth: CGFloat
+    var body: some View { EmptyView() }
+}
+#else
 import SwiftUI
 import UIKit
 import GoogleMobileAds
@@ -65,3 +73,4 @@ private extension UIApplication {
             .rootViewController
     }
 }
+#endif

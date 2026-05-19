@@ -33,13 +33,28 @@ targets:
     info:
       path: NomimonoWars/Info.plist
 
+  NomimonoWarsScreenshot:
+    type: application
+    platform: iOS
+    sources: [NomimonoWars]
+    settings:
+      base:
+        INFOPLIST_FILE: NomimonoWars/Info.plist
+        PRODUCT_NAME: NomimonoWars
+        PRODUCT_BUNDLE_IDENTIFIER: com.tokyonasu.nomimonowars
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: SCREENSHOT_MODE
+    info:
+      path: NomimonoWars/Info.plist
+
   NomimonoWarsUITests:
     type: bundle.ui-testing
     platform: iOS
     sources: [NomimonoWarsUITests]
     dependencies:
-      - target: NomimonoWars
+      - target: NomimonoWarsScreenshot
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.tokyonasu.nomimonowars.uitests
         GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/NomimonoWars.app/NomimonoWars
+        BUNDLE_LOADER: $(TEST_HOST)

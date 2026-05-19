@@ -90,16 +90,12 @@ struct ContentView: View {
 
             mainTabBar
 
-            #if !targetEnvironment(simulator)
             AdaptiveBannerAdView(adUnitID: kBannerAdID, maxWidth: UIScreen.main.bounds.width)
                 .frame(height: 50)
                 .background(Palette.ink)
-            #endif
         }
         .task {
-            #if !targetEnvironment(simulator)
             interstitialManager.loadAd()
-            #endif
             if let drinkTab = selectedMainTab.drinkTab {
                 await vm.switchTab(drinkTab)
             } else {
