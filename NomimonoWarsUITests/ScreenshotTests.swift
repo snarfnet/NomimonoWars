@@ -10,7 +10,7 @@ final class ScreenshotTests: XCTestCase {
         let app = XCUIApplication()
         // Reset authorization to prevent ATT dialog
         app.launchArguments += ["-ATT_SKIP"]
-        app.resetAuthorizationStatus(for: .tracking)
+        app.resetAuthorizationStatus(for: .userTracking)
         app.launch()
 
         // Handle any system dialogs automatically
