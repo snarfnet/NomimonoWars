@@ -90,6 +90,28 @@ jobs:
         xcrun simctl boot "$DEVICE_ID" || true
         sleep 5
 
+    - name: Import Distribution Certificate
+      env:
+        CERT_BASE64: ${{ secrets.DIST_CERT_BASE64 }}
+        CERT_PASSWORD: ${{ secrets.DIST_CERT_PASSWORD }}
+        KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      run: |
+        security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+        security default-keychain -s build.keychain
+        security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+        security set-keychain-settings -t 3600 -u build.keychain
+        echo "$CERT_BASE64" | base64 -D > cert.p12
+        security import cert.p12 -k build.keychain -P "$CERT_PASSWORD" -T /usr/bin/codesign
+        security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+        rm cert.p12
+
+    - name: Set up ASC API Key for signing
+      env:
+        ASC_API_KEY_CONTENT: ${{ secrets.ASC_API_KEY_CONTENT }}
+      run: |
+        mkdir -p ~/.appstoreconnect/private_keys
+        echo "$ASC_API_KEY_CONTENT" | base64 -D > ~/.appstoreconnect/private_keys/AuthKey_WDXGY9WX55.p8
+
     - name: Clean old screenshots
       run: rm -f /tmp/nw_screenshot_*.png /tmp/nomimonowars_screenshots_done
 
@@ -99,8 +121,12 @@ jobs:
           -scheme NomimonoWars \
           -destination "platform=iOS Simulator,id=$DEVICE_ID" \
           -only-testing:NomimonoWarsUITests/ScreenshotTests/testCaptureScreenshots \
-          CODE_SIGN_IDENTITY=- \
-          CODE_SIGNING_REQUIRED=NO || true
+          CODE_SIGN_STYLE=Automatic \
+          DEVELOPMENT_TEAM=83VGKGSQUH \
+          -allowProvisioningUpdates \
+          -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_WDXGY9WX55.p8 \
+          -authenticationKeyID WDXGY9WX55 \
+          -authenticationKeyIssuerID 2be0734f-943a-4d61-9dc9-5d9045c46fec || true
 
     - name: Extract screenshots
       run: |
@@ -151,12 +177,8 @@ jobs:
         name: screenshots-${{ matrix.display }}
         path: screenshots/
 
-    - name: Set up ASC API Key
-      env:
-        ASC_API_KEY_CONTENT: ${{ secrets.ASC_API_KEY_CONTENT }}
-      run: |
-        mkdir -p ~/.appstoreconnect/private_keys
-        echo "$ASC_API_KEY_CONTENT" | base64 -D > /tmp/asc_key.p8
+    - name: Copy ASC key for upload script
+      run: cp ~/.appstoreconnect/private_keys/AuthKey_WDXGY9WX55.p8 /tmp/asc_key.p8
 
     - name: Install dependencies
       run: pip3 install --break-system-packages PyJWT requests
