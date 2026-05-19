@@ -59,70 +59,55 @@ jobs:
         xcrun simctl boot "$DEVICE_ID" || true
         sleep 5
 
-    - name: Build for simulator
-      run: |
-        xcodebuild build-for-testing \
-          -scheme NomimonoWars \
-          -destination "platform=iOS Simulator,id=$DEVICE_ID" \
-          CODE_SIGN_IDENTITY=- \
-          CODE_SIGNING_REQUIRED=NO
-
-    - name: Install and launch app
-      run: |
-        APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "NomimonoWars.app" -path "*/Debug-iphonesimulator/*" | head -1)
-        echo "App path: $APP_PATH"
-        xcrun simctl install "$DEVICE_ID" "$APP_PATH"
-        xcrun simctl launch "$DEVICE_ID" com.tokyonasu.nomimonowars
-        sleep 8
-
-    - name: Capture screenshots
+    - name: Run UI test and capture screenshots via simctl
       run: |
         mkdir -p screenshots
 
-        # Screenshot 1: 新商品 (default tab)
-        xcrun simctl io "$DEVICE_ID" screenshot screenshots/01_shinshōhin.png
-        echo "Captured: 01_shinshōhin.png"
-
-        # Tap ランキング tab - use simctl with UI testing
-        # We'll use the status bar tap coordinates approach
-        # Instead, relaunch between tabs by sending deep links or use accessibility
-
-        # For reliable tab switching, we run the UI test that taps tabs and takes simctl screenshots
-        sleep 2
-
-    - name: Run screenshot UI test
-      run: |
-        mkdir -p screenshots
-        # Run the UI test - it will exercise the tabs
+        # Run UI test in background - it taps through tabs with sleep intervals
         xcodebuild test \
           -scheme NomimonoWars \
           -destination "platform=iOS Simulator,id=$DEVICE_ID" \
           -only-testing:NomimonoWarsUITests/ScreenshotTests/testCaptureScreenshots \
           CODE_SIGN_IDENTITY=- \
-          CODE_SIGNING_REQUIRED=NO 2>&1 &
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO 2>&1 &
         TEST_PID=$!
 
-        # Wait for app to launch and load content
-        sleep 15
+        # Wait for build + app launch + content load
+        sleep 90
 
-        # Take screenshots at intervals as the test progresses through tabs
-        # The test sleeps between tabs giving us time to capture
-        xcrun simctl io "$DEVICE_ID" screenshot screenshots/01_tab1.png
+        # Tab 1: 新商品 (app starts here, test waits 5s)
+        xcrun simctl io "$DEVICE_ID" screenshot screenshots/01_shinshōhin.png
+        echo "Captured tab 1"
         sleep 6
-        xcrun simctl io "$DEVICE_ID" screenshot screenshots/02_tab2.png
-        sleep 6
-        xcrun simctl io "$DEVICE_ID" screenshot screenshots/03_tab3.png
-        sleep 5
-        xcrun simctl io "$DEVICE_ID" screenshot screenshots/04_tab4.png
-        sleep 5
-        xcrun simctl io "$DEVICE_ID" screenshot screenshots/05_tab5.png
-        sleep 5
-        xcrun simctl io "$DEVICE_ID" screenshot screenshots/06_tab6.png
 
-        # Wait for test to finish
+        # Tab 2: ランキング (test taps + waits 3s)
+        xcrun simctl io "$DEVICE_ID" screenshot screenshots/02_ranking.png
+        echo "Captured tab 2"
+        sleep 6
+
+        # Tab 3: ニュース
+        xcrun simctl io "$DEVICE_ID" screenshot screenshots/03_news.png
+        echo "Captured tab 3"
+        sleep 5
+
+        # Tab 4: 飲みログ
+        xcrun simctl io "$DEVICE_ID" screenshot screenshots/04_nomilog.png
+        echo "Captured tab 4"
+        sleep 5
+
+        # Tab 5: 統計
+        xcrun simctl io "$DEVICE_ID" screenshot screenshots/05_stats.png
+        echo "Captured tab 5"
+        sleep 5
+
+        # Tab 6: 保存
+        xcrun simctl io "$DEVICE_ID" screenshot screenshots/06_bookmarks.png
+        echo "Captured tab 6"
+
         wait $TEST_PID || true
 
-        echo "Screenshots captured:"
+        echo "All screenshots:"
         ls -la screenshots/
 
     - name: Upload screenshots artifact
