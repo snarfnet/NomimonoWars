@@ -10,8 +10,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - device: "iPhone 16 Pro Max"
-            display: "APP_IPHONE_69"
           - device: "iPhone 16 Plus"
             display: "APP_IPHONE_67"
           - device: "iPad Pro 12.9-inch (6th generation)"
