@@ -330,14 +330,12 @@ struct ContentView: View {
     // MARK: - Main Tab Bar
 
     private var mainTabBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 2) {
-                ForEach(MainTab.allCases, id: \.self) { tab in
-                    mainTabButton(tab: tab)
-                }
+        HStack(spacing: 2) {
+            ForEach(MainTab.allCases, id: \.self) { tab in
+                mainTabButton(tab: tab)
             }
-            .padding(.horizontal, 8)
         }
+        .padding(.horizontal, 8)
         .padding(.vertical, 9)
         .background(
             Palette.bg

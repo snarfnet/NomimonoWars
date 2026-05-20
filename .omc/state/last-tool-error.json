@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"gh repo edit snarfnet/NomimonoWars --visibility public\",\"description\":\"Make repo public\"}",
-  "error": "Exit code 1\nuse of --visibility flag requires --accept-visibility-change-consequences flag\n\nUsage:  gh repo edit [<repository>] [flags]\n\nFlags:\n      --accept-visibility-change-consequences    Accept the consequences of changing the repository visibility\n      --add-topic strings                        Add repository topic\n      --allow-forking                            Allow forking of an organization repository\n      --allow-update-branch                      Allow a pull request head branch ...",
-  "timestamp": "2026-05-09T10:11:28.313Z",
+  "tool_input_preview": "{\"command\":\"python3 -c \\\"\\nimport jwt, time, requests\\n\\nKEY_ID = 'WDXGY9WX55'\\nISSUER = '2be0734f-943a-4d61-9dc9-5d9045c46fec'\\nAPP_ID = '6767826229'\\n\\np8 = open('C:/Users/Windows/.appstoreconnect/p...",
+  "error": "Exit code 1\nTraceback (most recent call last):\r\n  File \"<string>\", line 32, in <module>\r\n    w = first.get('imageAsset', {}).get('width', '?')\r\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nAttributeError: 'NoneType' object has no attribute 'get'",
+  "timestamp": "2026-05-20T06:01:28.047Z",
   "retry_count": 1
 }
