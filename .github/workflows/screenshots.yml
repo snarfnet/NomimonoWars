@@ -120,7 +120,10 @@ jobs:
         for f in 01_new 02_ranking 03_news 04_log 05_stats 06_bookmarks; do
           SRC="/tmp/nw_screenshot_${f}.png"
           if [ -s "$SRC" ]; then
-            cp "$SRC" "screenshots/${f}.png"
+            # Convert PNG→JPEG→PNG to strip alpha channel (ASC rejects RGBA PNGs)
+            sips -s format jpeg -s formatOptions 100 "$SRC" --out "screenshots/${f}.jpg" 2>/dev/null
+            sips -s format png "screenshots/${f}.jpg" --out "screenshots/${f}.png" 2>/dev/null
+            rm -f "screenshots/${f}.jpg"
             SIZE=$(wc -c < "screenshots/${f}.png" | tr -d ' ')
             # Get pixel dimensions
             DIMS=$(python3 -c "
