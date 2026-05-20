@@ -75,13 +75,13 @@ final class ScreenshotTests: XCTestCase {
     }
 
     private func saveScreenshot(named name: String, app: XCUIApplication) {
-        // Use app.screenshot() to capture only the app, not the home screen
         guard app.state == .runningForeground else {
             XCTFail("App not running when trying to capture \(name)")
             return
         }
 
-        let screenshot = app.screenshot()
+        // Use XCUIScreen for full native resolution (app.screenshot() returns @1x)
+        let screenshot = XCUIScreen.main.screenshot()
         let image = screenshot.image
 
         let format = UIGraphicsImageRendererFormat()
