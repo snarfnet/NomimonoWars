@@ -60,10 +60,16 @@ if not loc_id:
 print(f'Localization: {loc_id}')
 
 # Get existing screenshot sets for this display type
+print(f'Looking for display type: {args.display_type}')
 r = api('GET', f'/appStoreVersionLocalizations/{loc_id}/appScreenshotSets?filter[screenshotDisplayType]={args.display_type}')
 set_id = None
 if r.json().get('data'):
     set_id = r.json()['data'][0]['id']
+    actual_type = r.json()['data'][0]['attributes']['screenshotDisplayType']
+    print(f'Found set: {set_id} (type: {actual_type})')
+    if actual_type != args.display_type:
+        print(f'WARNING: Display type mismatch! Expected {args.display_type}, got {actual_type}')
+        set_id = None
     # Delete existing screenshots in the set
     r2 = api('GET', f'/appScreenshotSets/{set_id}/appScreenshots')
     for ss in r2.json().get('data', []):

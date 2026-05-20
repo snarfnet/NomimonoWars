@@ -8,6 +8,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         include:
           - device: "iPhone 16 Plus"
