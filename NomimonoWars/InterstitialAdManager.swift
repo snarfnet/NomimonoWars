@@ -11,7 +11,7 @@ import GoogleMobileAds
 
 @MainActor
 class InterstitialAdManager: NSObject, ObservableObject {
-    private var interstitial: GADInterstitialAd?
+    private var interstitial: InterstitialAd?
     private var tapCount = 0
     private let showEvery = 5
 
@@ -24,9 +24,9 @@ class InterstitialAdManager: NSObject, ObservableObject {
     }
 
     func loadAd() {
-        GADInterstitialAd.load(
-            withAdUnitID: "ca-app-pub-9404799280370656/9605394446",
-            request: GADRequest()
+        InterstitialAd.load(
+            with: "ca-app-pub-9404799280370656/9605394446",
+            request: Request()
         ) { [weak self] ad, error in
             if let error {
                 print("Interstitial load error: \(error.localizedDescription)")
@@ -45,7 +45,7 @@ class InterstitialAdManager: NSObject, ObservableObject {
             loadAd()
             return
         }
-        interstitial.present(fromRootViewController: rootVC)
+        interstitial.present(from: rootVC)
         loadAd()
     }
 }

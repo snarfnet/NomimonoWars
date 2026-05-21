@@ -17,7 +17,7 @@ struct AdaptiveBannerAdView: View {
     var body: some View {
         GeometryReader { proxy in
             let width = min(max(proxy.size.width, 320), maxWidth)
-            let adSize = GADLargeAnchoredAdaptiveBannerAdSizeWithWidth(width)
+            let adSize = largeAnchoredAdaptiveBanner(width: width)
 
             BannerAdContainer(adUnitID: adUnitID, adSize: adSize)
                 .frame(width: adSize.size.width, height: adSize.size.height)
@@ -29,27 +29,27 @@ struct AdaptiveBannerAdView: View {
 
 private struct BannerAdContainer: UIViewRepresentable {
     let adUnitID: String
-    let adSize: GADAdSize
+    let adSize: AdSize
 
     func makeCoordinator() -> Coordinator {
         Coordinator()
     }
 
-    func makeUIView(context: Context) -> GADBannerView {
-        let banner = GADBannerView(adSize: adSize)
+    func makeUIView(context: Context) -> BannerView {
+        let banner = BannerView(adSize: adSize)
         banner.adUnitID = adUnitID
         banner.backgroundColor = .clear
-        banner.load(GADRequest())
+        banner.load(Request())
         context.coordinator.loadedAdSize = "\(Int(adSize.size.width))x\(Int(adSize.size.height))"
         return banner
     }
 
-    func updateUIView(_ uiView: GADBannerView, context: Context) {
-        if !GADAdSizeEqualToSize(uiView.adSize, adSize) {
+    func updateUIView(_ uiView: BannerView, context: Context) {
+        if !isAdSizeEqualToSize(size1: uiView.adSize, size2: adSize) {
             uiView.adSize = adSize
             let sizeKey = "\(Int(adSize.size.width))x\(Int(adSize.size.height))"
             context.coordinator.loadedAdSize = sizeKey
-            uiView.load(GADRequest())
+            uiView.load(Request())
         }
     }
 
