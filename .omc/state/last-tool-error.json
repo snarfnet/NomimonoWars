@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"python3 << 'PYEOF'\\nimport urllib.request, json, jwt, time, os\\n\\nkey_path = os.path.join(os.environ['USERPROFILE'], '.appstoreconnect', 'private_keys', 'AuthKey_WDXGY9WX55.p8')\\nwith open...",
-  "error": "Exit code 1\n\r\n=== BodyReader ===\r\n  Version 1.2 | state=WAITING_FOR_REVIEW | id=016b50b8-f351-40f7-87c3-4afb342c5c4f\r\n  Set build error: {'error': 409, 'detail': '{\\n  \"errors\" : [ {\\n    \"id\" : \"173a9bbf-cb69-406a-8475-870051632267\",\\n    \"status\" : \"409\",\\n    \"code\" : \"ENTITY_ERROR.RELATIONSHIP.INVALID.INVALID_STATE\",\\n    \"title\" : \"A relationship value is not acceptable for the current resource state.\",\\n    \"detail\" : \"The specified pre-release build could not be added.\",\\n    \"source\" : {...",
-  "timestamp": "2026-05-21T03:06:24.827Z",
+  "tool_input_preview": "{\"command\":\"KEY_FILE=\\\"$USERPROFILE/.appstoreconnect/private_keys/AuthKey_WDXGY9WX55.p8\\\"\\nKEY_ID=\\\"WDXGY9WX55\\\"\\nISSUER=\\\"2be0734f-943a-4d61-9dc9-5d9045c46fec\\\"\\n\\n# Generate JWT\\nNOW=$(date +%s)\\nEX...",
+  "error": "Exit code 1\nTraceback (most recent call last):\r\n  File \"<string>\", line 3, in <module>\r\n    d=json.load(sys.stdin)\r\n  File \"C:\\Users\\Windows\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\json\\__init__.py\", line 298, in load\r\n    return loads(fp.read(),\r\n        cls=cls, object_hook=object_hook,\r\n        parse_float=parse_float, parse_int=parse_int,\r\n        parse_constant=parse_constant, object_pairs_hook=object_pairs_hook, **kw)\r\n  File \"C:\\Users\\Windows\\AppData\\Local\\Python\\pythoncore-3.14-64\\Li...",
+  "timestamp": "2026-05-21T07:29:51.478Z",
   "retry_count": 1
 }

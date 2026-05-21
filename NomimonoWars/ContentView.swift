@@ -1,7 +1,6 @@
 import SwiftUI
 import SafariServices
-
-private let kBannerAdID = "ca-app-pub-9404799280370656/4115440217"
+import AppTrackingTransparency
 
 struct ContentView: View {
     @StateObject private var vm = DrinkViewModel()
@@ -11,6 +10,7 @@ struct ContentView: View {
     @State private var selectedMainTab: MainTab = .newRelease
 
     @Environment(\.horizontalSizeClass) private var sizeClass
+    @AppStorage("didRequestTracking") private var didRequestTracking = false
 
     enum MainTab: CaseIterable {
         case newRelease, ranking, news, log, stats, bookmarks
@@ -89,12 +89,6 @@ struct ContentView: View {
             }
 
             mainTabBar
-
-            GeometryReader { geo in
-                AdaptiveBannerAdView(adUnitID: kBannerAdID, maxWidth: geo.size.width)
-            }
-            .frame(height: 50)
-            .background(Palette.ink)
         }
         .task {
             interstitialManager.loadAd()
@@ -103,6 +97,9 @@ struct ContentView: View {
             } else {
                 await vm.fetch()
             }
+        }
+        .onAppear {
+            requestTrackingIfNeeded()
         }
     }
 
@@ -347,6 +344,18 @@ struct ContentView: View {
                         .frame(height: 1)
                 }
         )
+    }
+
+    private func requestTrackingIfNeeded() {
+        guard !didRequestTracking else { return }
+        guard ATTrackingManager.trackingAuthorizationStatus == .notDetermined else {
+            didRequestTracking = true
+            return
+        }
+        didRequestTracking = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+            ATTrackingManager.requestTrackingAuthorization { _ in }
+        }
     }
 
     private func mainTabButton(tab: MainTab) -> some View {
