@@ -24,6 +24,7 @@ class InterstitialAdManager: NSObject, ObservableObject {
     }
 
     func loadAd() {
+        guard AdMobStartup.shared.isReady else { return }
         InterstitialAd.load(
             with: "ca-app-pub-9404799280370656/9605394446",
             request: Request()

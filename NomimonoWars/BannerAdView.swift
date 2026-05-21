@@ -13,17 +13,21 @@ import GoogleMobileAds
 struct AdaptiveBannerAdView: View {
     let adUnitID: String
     let maxWidth: CGFloat
+    @ObservedObject private var startup = AdMobStartup.shared
 
     var body: some View {
         GeometryReader { proxy in
-            let width = min(max(proxy.size.width, 320), maxWidth)
-            let adSize = largeAnchoredAdaptiveBanner(width: width)
+            if startup.isReady, proxy.size.width > 0 {
+                let width = min(max(proxy.size.width, 320), maxWidth)
+                let adSize = largeAnchoredAdaptiveBanner(width: width)
 
-            BannerAdContainer(adUnitID: adUnitID, adSize: adSize)
-                .frame(width: adSize.size.width, height: adSize.size.height)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                BannerAdContainer(adUnitID: adUnitID, adSize: adSize)
+                    .frame(width: adSize.size.width, height: adSize.size.height)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
-        .frame(height: 90)
+        .frame(height: startup.isReady ? 90 : 0)
+        .task { startup.requestTrackingAndStart() }
     }
 }
 

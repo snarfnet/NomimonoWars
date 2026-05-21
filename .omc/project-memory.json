@@ -1,0 +1,72 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1779332479278,
+  "projectRoot": "C:\\Users\\Windows\\NomimonoWars",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "scripts"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "NomimonoWars": {
+      "path": "NomimonoWars",
+      "purpose": null,
+      "fileCount": 12,
+      "lastAccessed": 1779332479225,
+      "keyFiles": [
+        "BannerAdView.swift",
+        "BookmarkManager.swift",
+        "ContentView.swift",
+        "DrinkItem.swift",
+        "DrinkLogEntry.swift"
+      ]
+    },
+    "NomimonoWarsUITests": {
+      "path": "NomimonoWarsUITests",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1779332479226,
+      "keyFiles": [
+        "ScreenshotTests.swift"
+      ]
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 6,
+      "lastAccessed": 1779332479227,
+      "keyFiles": [
+        "delete_screenshots.py",
+        "extract_screenshots.py",
+        "generate_store_assets.py",
+        "submit.py",
+        "update_review_contact.py"
+      ]
+    }
+  },
+  "hotPaths": [],
+  "userDirectives": []
+}
