@@ -93,6 +93,12 @@
       "type": "file"
     },
     {
+      "path": "export_options.plist",
+      "accessCount": 2,
+      "lastAccessed": 1779366277991,
+      "type": "file"
+    },
+    {
       "path": "NomimonoWars\\ContentView.swift",
       "accessCount": 1,
       "lastAccessed": 1779347800075,
