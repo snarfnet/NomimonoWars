@@ -14,9 +14,11 @@ struct DrinkLogView: View {
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             VStack(spacing: 0) {
-                logHeader
                 if logManager.entries.isEmpty {
-                    emptyLogState
+                    ScrollView {
+                        logHeader
+                        emptyLogState
+                    }
                 } else {
                     logList
                 }
@@ -108,6 +110,7 @@ struct DrinkLogView: View {
 
     private var logList: some View {
         ScrollView {
+            logHeader
             LazyVGrid(columns: cardColumns, spacing: 12) {
                 ForEach(logManager.entries) { entry in
                     DrinkLogCard(entry: entry)

@@ -7,9 +7,11 @@ struct StatsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            statsHeader
             if logManager.entries.isEmpty {
-                emptyStatsState
+                ScrollView {
+                    statsHeader
+                    emptyStatsState
+                }
             } else {
                 statsContent
             }
@@ -60,6 +62,7 @@ struct StatsView: View {
     @ViewBuilder
     private var statsContent: some View {
         ScrollView {
+            statsHeader
             if isRegularWidth {
                 VStack(spacing: 14) {
                     weeklyChart
