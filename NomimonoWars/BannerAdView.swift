@@ -17,7 +17,7 @@ struct AdaptiveBannerAdView: View {
     var body: some View {
         GeometryReader { proxy in
             let width = min(max(proxy.size.width, 320), maxWidth)
-            let adSize = GADCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(width)
+            let adSize = GADLargeAnchoredAdaptiveBannerAdSizeWithWidth(width)
 
             BannerAdContainer(adUnitID: adUnitID, adSize: adSize)
                 .frame(width: adSize.size.width, height: adSize.size.height)

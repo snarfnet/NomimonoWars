@@ -19,7 +19,7 @@ struct NomimonoWarsApp: App {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                             ATTrackingManager.requestTrackingAuthorization { _ in
                                 DispatchQueue.main.async {
-                                    GADMobileAds.sharedInstance().start { _ in }
+                                    MobileAds.shared.start()
                                 }
                             }
                         }
