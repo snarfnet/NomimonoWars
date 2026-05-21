@@ -39,38 +39,22 @@ private struct BannerAdContainer: UIViewRepresentable {
         let banner = GADBannerView(adSize: adSize)
         banner.adUnitID = adUnitID
         banner.backgroundColor = .clear
+        banner.load(GADRequest())
+        context.coordinator.loadedAdSize = "\(Int(adSize.size.width))x\(Int(adSize.size.height))"
         return banner
     }
 
     func updateUIView(_ uiView: GADBannerView, context: Context) {
         if !GADAdSizeEqualToSize(uiView.adSize, adSize) {
             uiView.adSize = adSize
-            context.coordinator.loadedAdSize = nil
+            let sizeKey = "\(Int(adSize.size.width))x\(Int(adSize.size.height))"
+            context.coordinator.loadedAdSize = sizeKey
+            uiView.load(GADRequest())
         }
-
-        guard let rootViewController = uiView.window?.rootViewController ?? UIApplication.shared.activeRootViewController else { return }
-
-        uiView.rootViewController = rootViewController
-        let sizeKey = "\(Int(adSize.size.width))x\(Int(adSize.size.height))"
-        guard context.coordinator.loadedAdSize != sizeKey else { return }
-
-        context.coordinator.loadedAdSize = sizeKey
-        uiView.load(GADRequest())
     }
 
     final class Coordinator {
         var loadedAdSize: String?
-    }
-}
-
-private extension UIApplication {
-    var activeRootViewController: UIViewController? {
-        connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first { $0.activationState == .foregroundActive }?
-            .windows
-            .first { $0.isKeyWindow }?
-            .rootViewController
     }
 }
 #endif

@@ -90,9 +90,11 @@ struct ContentView: View {
 
             mainTabBar
 
-            AdaptiveBannerAdView(adUnitID: kBannerAdID, maxWidth: UIScreen.main.bounds.width)
-                .frame(height: 50)
-                .background(Palette.ink)
+            GeometryReader { geo in
+                AdaptiveBannerAdView(adUnitID: kBannerAdID, maxWidth: geo.size.width)
+            }
+            .frame(height: 50)
+            .background(Palette.ink)
         }
         .task {
             interstitialManager.loadAd()
