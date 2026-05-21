@@ -67,6 +67,43 @@
       ]
     }
   },
-  "hotPaths": [],
+  "hotPaths": [
+    {
+      "path": "project.yml",
+      "accessCount": 5,
+      "lastAccessed": 1779347895440,
+      "type": "file"
+    },
+    {
+      "path": "NomimonoWars\\NomimonoWarsApp.swift",
+      "accessCount": 2,
+      "lastAccessed": 1779347825874,
+      "type": "file"
+    },
+    {
+      "path": "NomimonoWars\\BannerAdView.swift",
+      "accessCount": 2,
+      "lastAccessed": 1779347827147,
+      "type": "file"
+    },
+    {
+      "path": "NomimonoWars\\InterstitialAdManager.swift",
+      "accessCount": 2,
+      "lastAccessed": 1779347828469,
+      "type": "file"
+    },
+    {
+      "path": "NomimonoWars\\ContentView.swift",
+      "accessCount": 1,
+      "lastAccessed": 1779347800075,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 1,
+      "lastAccessed": 1779347898392,
+      "type": "directory"
+    }
+  ],
   "userDirectives": []
 }
