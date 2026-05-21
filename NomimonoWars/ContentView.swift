@@ -107,10 +107,7 @@ struct ContentView: View {
 
     @ViewBuilder
     private var drinkView: some View {
-        VStack(spacing: 0) {
-            hero
-            drinkContent
-        }
+        drinkContent
     }
 
     private var hero: some View {
@@ -189,7 +186,10 @@ struct ContentView: View {
     @ViewBuilder
     private var drinkContent: some View {
         if vm.isLoading && vm.sections.isEmpty {
-            loadingState
+            VStack(spacing: 0) {
+                hero
+                loadingState
+            }
         } else if vm.sections.isEmpty {
             emptyState(
                 icon: "cup.and.saucer.fill",
@@ -202,6 +202,7 @@ struct ContentView: View {
         } else {
             ScrollView {
                 LazyVStack(spacing: 0) {
+                    hero
                     ForEach(vm.sections, id: \.date) { section in
                         sectionHeader(section.date)
                         ForEach(section.items) { item in
